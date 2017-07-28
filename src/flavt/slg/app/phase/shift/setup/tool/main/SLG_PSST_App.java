@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package slg.phase.shift.setup.tool.main;
+package flavt.slg.app.phase.shift.setup.tool.main;
 
 import java.io.File;
 import java.net.ServerSocket;
@@ -25,27 +25,24 @@ public class SLG_PSST_App {
     
     static Logger logger = Logger.getLogger(SLG_PSST_App.class);
 
+    SLG_PSST_Settings m_pSettings;
     public SLG_PSST_App() {
         m_strSLGrootEnvVar = System.getenv( "SLG_ROOT");
         
         //SETTINGS
-        //m_pSettings = new HVV_ArcViewerSettings( m_strAMSrootEnvVar);
+        m_pSettings = new SLG_PSST_Settings( m_strSLGrootEnvVar);
         
         m_pSingleInstanceSocketServer = null;
         //ПРОВЕРКА ОДНОВРЕМЕННОГО ЗАПУСКА ТОЛЬКО ОДНОЙ КОПИИ ПРОГРАММЫ
-        //try {
-        //    m_pSingleInstanceSocketServer = new ServerSocket( m_pSettings.GetSingleInstanceSocketServerPort());
-        //}
-        //catch( Exception ex) {
-        //    MessageBoxError( "Модуль просмотра архивных данных уже запущен.\nПоищите на других \"экранах\".", "Модуль просмотра архивных данных");
-        //    logger.error( "Не смогли открыть сокет для проверки запуска только одной копии программы! Программа уже запущена?", ex);
-        //    m_pSingleInstanceSocketServer = null;
-        //    m_pResources = null;
-        //    return;
-        //}
-        
-        //RESOURCES
-        //m_pResources = HVV_Resources.getInstance();
+        try {
+            m_pSingleInstanceSocketServer = new ServerSocket( m_pSettings.GetSingleInstanceSocketServerPort());
+        }
+        catch( Exception ex) {
+            MessageBoxError( "Модуль просмотра архивных данных уже запущен.\nПоищите на других \"экранах\".", "Модуль просмотра архивных данных");
+            logger.error( "Не смогли открыть сокет для проверки запуска только одной копии программы! Программа уже запущена?", ex);
+            m_pSingleInstanceSocketServer = null;
+            return;
+        }
     }
     
     
@@ -66,8 +63,10 @@ public class SLG_PSST_App {
         File file = new File( strlog4jPropertiesFile);
         if(!file.exists())
             System.out.println("It is not possible to load the given log4j properties file :" + file.getAbsolutePath());
-        else
-            PropertyConfigurator.configure( file.getAbsolutePath());
+        else {
+            String strAbsPath = file.getAbsolutePath();
+            PropertyConfigurator.configure( strAbsPath);
+        }
         
         SLG_PSST_App appInstance = new SLG_PSST_App();
         if( appInstance.m_pSingleInstanceSocketServer != null) {
