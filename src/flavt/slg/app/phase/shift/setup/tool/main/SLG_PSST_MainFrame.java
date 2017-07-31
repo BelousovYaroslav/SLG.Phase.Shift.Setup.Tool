@@ -5,20 +5,131 @@
  */
 package flavt.slg.app.phase.shift.setup.tool.main;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import javax.swing.JEditorPane;
+import javax.swing.JTextField;
+import javax.swing.Timer;
+
 /**
  *
  * @author yaroslav
  */
 public class SLG_PSST_MainFrame extends javax.swing.JFrame {
     private final SLG_PSST_App theApp;
+    
+    Timer tRefreshStates;
+    Timer tRefreshValues;
+    Timer tPolling;
+    
     /**
      * Creates new form MainFrame
      */
     public SLG_PSST_MainFrame( SLG_PSST_App app) {
         theApp = app;
-        initComponents();
+        initComponents();        
+        
+        tRefreshStates = new Timer( 200, new ActionListener() {
+
+            @Override
+            public void actionPerformed( ActionEvent e) {
+                btnT1Get.setEnabled( theApp.m_bConnected);
+                btnT1Set.setEnabled( theApp.m_bConnected);
+                btnT2Get.setEnabled( theApp.m_bConnected);
+                btnT2Set.setEnabled( theApp.m_bConnected);
+                btnT3Get.setEnabled( theApp.m_bConnected);
+                btnT3Set.setEnabled( theApp.m_bConnected);
+                btnT4Get.setEnabled( theApp.m_bConnected);
+                btnT4Set.setEnabled( theApp.m_bConnected);
+                btnT5Get.setEnabled( theApp.m_bConnected);
+                btnT5Set.setEnabled( theApp.m_bConnected);
+                
+                btnT6Get.setEnabled( theApp.m_bConnected);
+                btnT6Set.setEnabled( theApp.m_bConnected);
+                btnT7Get.setEnabled( theApp.m_bConnected);
+                btnT7Set.setEnabled( theApp.m_bConnected);
+                btnT8Get.setEnabled( theApp.m_bConnected);
+                btnT8Set.setEnabled( theApp.m_bConnected);
+                btnT9Get.setEnabled( theApp.m_bConnected);
+                btnT9Set.setEnabled( theApp.m_bConnected);
+                btnT10Get.setEnabled( theApp.m_bConnected);
+                btnT10Set.setEnabled( theApp.m_bConnected);
+                
+                btnT11Get.setEnabled( theApp.m_bConnected);
+                btnT11Set.setEnabled( theApp.m_bConnected);
+                
+                
+                btnPS1Get.setEnabled( theApp.m_bConnected);
+                btnPS1Set.setEnabled( theApp.m_bConnected);
+                btnPS2Get.setEnabled( theApp.m_bConnected);
+                btnPS2Set.setEnabled( theApp.m_bConnected);
+                btnPS3Get.setEnabled( theApp.m_bConnected);
+                btnPS3Set.setEnabled( theApp.m_bConnected);
+                btnPS4Get.setEnabled( theApp.m_bConnected);
+                btnPS4Set.setEnabled( theApp.m_bConnected);
+                btnPS5Get.setEnabled( theApp.m_bConnected);
+                btnPS5Set.setEnabled( theApp.m_bConnected);
+                
+                btnPS6Get.setEnabled( theApp.m_bConnected);
+                btnPS6Set.setEnabled( theApp.m_bConnected);
+                btnPS7Get.setEnabled( theApp.m_bConnected);
+                btnPS7Set.setEnabled( theApp.m_bConnected);
+                btnPS8Get.setEnabled( theApp.m_bConnected);
+                btnPS8Set.setEnabled( theApp.m_bConnected);
+                btnPS9Get.setEnabled( theApp.m_bConnected);
+                btnPS9Set.setEnabled( theApp.m_bConnected);
+                btnPS10Get.setEnabled( theApp.m_bConnected);
+                btnPS10Set.setEnabled( theApp.m_bConnected);
+                
+                btnPS11Get.setEnabled( theApp.m_bConnected);
+                btnPS11Set.setEnabled( theApp.m_bConnected);
+            }
+        });
+        tRefreshStates.start();
+        
+        tRefreshValues = new Timer( 200, new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                
+                if( theApp.m_bConnected) {
+                    lblPacksCounter.setText( "Счётчик посылок: " + theApp.m_nPacksCounter);
+                }
+                else {
+                    lblPacksCounter.setText( "Нет соединения");
+                }
+                    
+                    
+                JTextField edtsT[] =  { edtT1Show, edtT2Show, edtT3Show, edtT4Show, edtT5Show,
+                                        edtT6Show, edtT7Show, edtT8Show, edtT9Show, edtT10Show,
+                                        edtT11Show };
+                
+                JTextField edtsPS[] = { edtPS1Show, edtPS2Show, edtPS3Show, edtPS4Show, edtPS5Show,
+                                        edtPS6Show, edtPS7Show, edtPS8Show, edtPS9Show, edtPS10Show,
+                                        edtPS11Show };
+                    
+                for( int i=0; i<11; i++) {
+                    edtsT[i].setText( "" + theApp.m_DevT[ i]);
+                    edtsPS[i].setText( "" + theApp.m_DevPS[ i]);
+                }
+            }
+            
+            
+        });
+        tRefreshValues.start();
+        
+        tPolling = new Timer( 200, new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                
+            }
+            
+        });
+        tPolling.start();
     }
 
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -28,697 +139,672 @@ public class SLG_PSST_MainFrame extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jLabel1 = new javax.swing.JLabel();
-        jTextField1 = new javax.swing.JTextField();
-        jLabel2 = new javax.swing.JLabel();
-        jTextField3 = new javax.swing.JTextField();
-        jTextField4 = new javax.swing.JTextField();
-        jTextField5 = new javax.swing.JTextField();
-        jTextField6 = new javax.swing.JTextField();
-        jTextField7 = new javax.swing.JTextField();
-        jTextField8 = new javax.swing.JTextField();
-        jTextField9 = new javax.swing.JTextField();
-        jTextField10 = new javax.swing.JTextField();
-        jTextField11 = new javax.swing.JTextField();
-        jTextField12 = new javax.swing.JTextField();
-        jTextField13 = new javax.swing.JTextField();
-        jTextField14 = new javax.swing.JTextField();
-        jTextField15 = new javax.swing.JTextField();
-        jTextField16 = new javax.swing.JTextField();
-        jTextField17 = new javax.swing.JTextField();
-        jTextField18 = new javax.swing.JTextField();
-        jTextField19 = new javax.swing.JTextField();
-        jTextField20 = new javax.swing.JTextField();
-        jTextField21 = new javax.swing.JTextField();
-        jTextField22 = new javax.swing.JTextField();
-        jTextField23 = new javax.swing.JTextField();
-        jTextField24 = new javax.swing.JTextField();
-        jTextField25 = new javax.swing.JTextField();
-        jButton1 = new javax.swing.JButton();
-        jButton2 = new javax.swing.JButton();
-        jTextField26 = new javax.swing.JTextField();
-        jTextField27 = new javax.swing.JTextField();
-        jTextField28 = new javax.swing.JTextField();
-        jTextField29 = new javax.swing.JTextField();
-        jTextField30 = new javax.swing.JTextField();
-        jTextField31 = new javax.swing.JTextField();
-        jTextField32 = new javax.swing.JTextField();
-        jTextField33 = new javax.swing.JTextField();
-        jTextField34 = new javax.swing.JTextField();
-        jTextField35 = new javax.swing.JTextField();
-        jTextField36 = new javax.swing.JTextField();
-        jButton3 = new javax.swing.JButton();
-        jButton4 = new javax.swing.JButton();
-        jButton5 = new javax.swing.JButton();
-        jButton6 = new javax.swing.JButton();
-        jButton7 = new javax.swing.JButton();
-        jButton8 = new javax.swing.JButton();
-        jButton9 = new javax.swing.JButton();
-        jButton10 = new javax.swing.JButton();
-        jButton11 = new javax.swing.JButton();
-        jButton12 = new javax.swing.JButton();
-        jButton13 = new javax.swing.JButton();
-        jButton14 = new javax.swing.JButton();
-        jButton15 = new javax.swing.JButton();
-        jButton16 = new javax.swing.JButton();
-        jButton17 = new javax.swing.JButton();
-        jButton20 = new javax.swing.JButton();
-        jButton21 = new javax.swing.JButton();
-        jButton22 = new javax.swing.JButton();
-        jButton23 = new javax.swing.JButton();
-        jButton24 = new javax.swing.JButton();
-        jTextField37 = new javax.swing.JTextField();
-        jTextField38 = new javax.swing.JTextField();
-        jTextField39 = new javax.swing.JTextField();
-        jTextField40 = new javax.swing.JTextField();
-        jTextField41 = new javax.swing.JTextField();
-        jTextField42 = new javax.swing.JTextField();
-        jTextField43 = new javax.swing.JTextField();
-        jTextField44 = new javax.swing.JTextField();
-        jTextField45 = new javax.swing.JTextField();
-        jTextField46 = new javax.swing.JTextField();
-        jTextField47 = new javax.swing.JTextField();
-        jTextField48 = new javax.swing.JTextField();
-        jTextField2 = new javax.swing.JTextField();
-        jButton18 = new javax.swing.JButton();
-        jButton19 = new javax.swing.JButton();
-        jButton25 = new javax.swing.JButton();
-        jButton26 = new javax.swing.JButton();
-        jButton27 = new javax.swing.JButton();
-        jButton28 = new javax.swing.JButton();
-        jButton29 = new javax.swing.JButton();
-        jButton30 = new javax.swing.JButton();
-        jButton31 = new javax.swing.JButton();
-        jButton32 = new javax.swing.JButton();
-        jButton33 = new javax.swing.JButton();
-        jButton34 = new javax.swing.JButton();
-        jButton35 = new javax.swing.JButton();
-        jButton36 = new javax.swing.JButton();
-        jButton37 = new javax.swing.JButton();
-        jButton38 = new javax.swing.JButton();
-        jButton39 = new javax.swing.JButton();
-        jButton40 = new javax.swing.JButton();
-        jButton41 = new javax.swing.JButton();
-        jButton42 = new javax.swing.JButton();
-        jButton43 = new javax.swing.JButton();
-        jButton44 = new javax.swing.JButton();
-        jButton45 = new javax.swing.JButton();
-        jButton46 = new javax.swing.JButton();
-        jButton47 = new javax.swing.JButton();
-        jButton48 = new javax.swing.JButton();
-        jButton49 = new javax.swing.JButton();
-        jButton50 = new javax.swing.JButton();
-        jButton51 = new javax.swing.JButton();
+        lblPort = new javax.swing.JLabel();
+        edtPort = new javax.swing.JTextField();
+        btnConnect = new javax.swing.JButton();
+        lblPacksCounter = new javax.swing.JLabel();
+        btnExit = new javax.swing.JButton();
+        lblTemperature = new javax.swing.JLabel();
+        btnT1Get = new javax.swing.JButton();
+        edtT1Show = new javax.swing.JTextField();
+        edtT1Edit = new javax.swing.JTextField();
+        btnT1Set = new javax.swing.JButton();
+        btnT2Get = new javax.swing.JButton();
+        edtT2Show = new javax.swing.JTextField();
+        edtT2Edit = new javax.swing.JTextField();
+        btnT2Set = new javax.swing.JButton();
+        btnT3Get = new javax.swing.JButton();
+        edtT3Show = new javax.swing.JTextField();
+        edtT3Edit = new javax.swing.JTextField();
+        btnT3Set = new javax.swing.JButton();
+        btnT4Get = new javax.swing.JButton();
+        edtT4Show = new javax.swing.JTextField();
+        edtT4Edit = new javax.swing.JTextField();
+        btnT4Set = new javax.swing.JButton();
+        btnT5Get = new javax.swing.JButton();
+        edtT5Show = new javax.swing.JTextField();
+        edtT5Edit = new javax.swing.JTextField();
+        btnT5Set = new javax.swing.JButton();
+        btnT6Get = new javax.swing.JButton();
+        edtT6Show = new javax.swing.JTextField();
+        edtT6Edit = new javax.swing.JTextField();
+        btnT6Set = new javax.swing.JButton();
+        btnT7Get = new javax.swing.JButton();
+        edtT7Show = new javax.swing.JTextField();
+        edtT7Edit = new javax.swing.JTextField();
+        btnT7Set = new javax.swing.JButton();
+        btnT8Get = new javax.swing.JButton();
+        edtT8Show = new javax.swing.JTextField();
+        edtT8Edit = new javax.swing.JTextField();
+        btnT8Set = new javax.swing.JButton();
+        btnT9Get = new javax.swing.JButton();
+        edtT9Show = new javax.swing.JTextField();
+        edtT9Edit = new javax.swing.JTextField();
+        btnT9Set = new javax.swing.JButton();
+        btnT10Get = new javax.swing.JButton();
+        edtT10Show = new javax.swing.JTextField();
+        edtT10Edit = new javax.swing.JTextField();
+        btnT10Set = new javax.swing.JButton();
+        btnT11Get = new javax.swing.JButton();
+        edtT11Show = new javax.swing.JTextField();
+        edtT11Edit = new javax.swing.JTextField();
+        btnT11Set = new javax.swing.JButton();
+        lblPhaseShift = new javax.swing.JLabel();
+        btnPS1Get = new javax.swing.JButton();
+        edtPS1Show = new javax.swing.JTextField();
+        edtPS1Edit = new javax.swing.JTextField();
+        btnPS1Set = new javax.swing.JButton();
+        btnPS2Get = new javax.swing.JButton();
+        edtPS2Show = new javax.swing.JTextField();
+        edtPS2Edit = new javax.swing.JTextField();
+        btnPS2Set = new javax.swing.JButton();
+        btnPS3Get = new javax.swing.JButton();
+        edtPS3Show = new javax.swing.JTextField();
+        edtPS3Edit = new javax.swing.JTextField();
+        btnPS3Set = new javax.swing.JButton();
+        btnPS4Get = new javax.swing.JButton();
+        edtPS4Show = new javax.swing.JTextField();
+        edtPS4Edit = new javax.swing.JTextField();
+        btnPS4Set = new javax.swing.JButton();
+        btnPS5Get = new javax.swing.JButton();
+        edtPS5Show = new javax.swing.JTextField();
+        edtPS5Edit = new javax.swing.JTextField();
+        btnPS5Set = new javax.swing.JButton();
+        btnPS6Get = new javax.swing.JButton();
+        edtPS6Show = new javax.swing.JTextField();
+        edtPS6Edit = new javax.swing.JTextField();
+        btnPS6Set = new javax.swing.JButton();
+        btnPS7Get = new javax.swing.JButton();
+        edtPS7Show = new javax.swing.JTextField();
+        edtPS7Edit = new javax.swing.JTextField();
+        btnPS7Set = new javax.swing.JButton();
+        btnPS8Get = new javax.swing.JButton();
+        edtPS8Show = new javax.swing.JTextField();
+        edtPS8Edit = new javax.swing.JTextField();
+        btnPS8Set = new javax.swing.JButton();
+        btnPS9Get = new javax.swing.JButton();
+        edtPS9Show = new javax.swing.JTextField();
+        edtPS9Edit = new javax.swing.JTextField();
+        btnPS9Set = new javax.swing.JButton();
+        btnPS10Get = new javax.swing.JButton();
+        edtPS10Show = new javax.swing.JTextField();
+        edtPS10Edit = new javax.swing.JTextField();
+        btnPS10Set = new javax.swing.JButton();
+        btnPS11Get = new javax.swing.JButton();
+        edtPS11Show = new javax.swing.JTextField();
+        edtPS11Edit = new javax.swing.JTextField();
+        btnPS11Set = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setTitle("МЛГ3Б. Утилита для редактирования калибровки фазового сдвига  (С) ФЛАВТ   2017.07.31 15:52");
         setMaximumSize(new java.awt.Dimension(850, 500));
         setMinimumSize(new java.awt.Dimension(850, 500));
         setPreferredSize(new java.awt.Dimension(850, 500));
         setResizable(false);
         getContentPane().setLayout(null);
 
-        jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel1.setText("<html><b><u>Фазовый сдвиг</b></u></html>");
-        getContentPane().add(jLabel1);
-        jLabel1.setBounds(290, 10, 270, 30);
-
-        jTextField1.setEditable(false);
-        getContentPane().add(jTextField1);
-        jTextField1.setBounds(360, 40, 60, 30);
-
-        jLabel2.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel2.setText("<html><b><u>Температура</b></u></html>");
-        getContentPane().add(jLabel2);
-        jLabel2.setBounds(10, 10, 270, 30);
-
-        jTextField3.setEditable(false);
-        getContentPane().add(jTextField3);
-        jTextField3.setBounds(360, 70, 60, 30);
-
-        jTextField4.setEditable(false);
-        jTextField4.setHorizontalAlignment(javax.swing.JTextField.CENTER);
-        jTextField4.setText("-50");
-        getContentPane().add(jTextField4);
-        jTextField4.setBounds(80, 70, 60, 30);
-
-        jTextField5.setEditable(false);
-        getContentPane().add(jTextField5);
-        jTextField5.setBounds(360, 100, 60, 30);
-
-        jTextField6.setEditable(false);
-        jTextField6.setHorizontalAlignment(javax.swing.JTextField.CENTER);
-        jTextField6.setText("-40");
-        getContentPane().add(jTextField6);
-        jTextField6.setBounds(80, 100, 60, 30);
-
-        jTextField7.setEditable(false);
-        getContentPane().add(jTextField7);
-        jTextField7.setBounds(360, 130, 60, 30);
-
-        jTextField8.setEditable(false);
-        jTextField8.setHorizontalAlignment(javax.swing.JTextField.CENTER);
-        jTextField8.setText("-30");
-        getContentPane().add(jTextField8);
-        jTextField8.setBounds(80, 130, 60, 30);
-
-        jTextField9.setEditable(false);
-        getContentPane().add(jTextField9);
-        jTextField9.setBounds(360, 160, 60, 30);
-
-        jTextField10.setEditable(false);
-        jTextField10.setHorizontalAlignment(javax.swing.JTextField.CENTER);
-        jTextField10.setText("-20");
-        getContentPane().add(jTextField10);
-        jTextField10.setBounds(80, 160, 60, 30);
-
-        jTextField11.setEditable(false);
-        getContentPane().add(jTextField11);
-        jTextField11.setBounds(360, 190, 60, 30);
-
-        jTextField12.setEditable(false);
-        jTextField12.setHorizontalAlignment(javax.swing.JTextField.CENTER);
-        jTextField12.setText("-10");
-        getContentPane().add(jTextField12);
-        jTextField12.setBounds(80, 190, 60, 30);
-
-        jTextField13.setEditable(false);
-        getContentPane().add(jTextField13);
-        jTextField13.setBounds(360, 220, 60, 30);
-
-        jTextField14.setEditable(false);
-        jTextField14.setHorizontalAlignment(javax.swing.JTextField.CENTER);
-        jTextField14.setText("0");
-        getContentPane().add(jTextField14);
-        jTextField14.setBounds(80, 220, 60, 30);
-
-        jTextField15.setEditable(false);
-        getContentPane().add(jTextField15);
-        jTextField15.setBounds(360, 250, 60, 30);
-
-        jTextField16.setEditable(false);
-        jTextField16.setHorizontalAlignment(javax.swing.JTextField.CENTER);
-        jTextField16.setText("10");
-        getContentPane().add(jTextField16);
-        jTextField16.setBounds(80, 250, 60, 30);
-
-        jTextField17.setEditable(false);
-        getContentPane().add(jTextField17);
-        jTextField17.setBounds(360, 280, 60, 30);
-
-        jTextField18.setEditable(false);
-        jTextField18.setHorizontalAlignment(javax.swing.JTextField.CENTER);
-        jTextField18.setText("20");
-        getContentPane().add(jTextField18);
-        jTextField18.setBounds(80, 280, 60, 30);
-
-        jTextField19.setEditable(false);
-        getContentPane().add(jTextField19);
-        jTextField19.setBounds(360, 310, 60, 30);
-
-        jTextField20.setEditable(false);
-        jTextField20.setHorizontalAlignment(javax.swing.JTextField.CENTER);
-        jTextField20.setText("30");
-        getContentPane().add(jTextField20);
-        jTextField20.setBounds(80, 310, 60, 30);
-
-        jTextField21.setEditable(false);
-        getContentPane().add(jTextField21);
-        jTextField21.setBounds(360, 340, 60, 30);
-
-        jTextField22.setEditable(false);
-        jTextField22.setHorizontalAlignment(javax.swing.JTextField.CENTER);
-        jTextField22.setText("50");
-        getContentPane().add(jTextField22);
-        jTextField22.setBounds(80, 370, 60, 30);
-
-        jTextField23.setEditable(false);
-        getContentPane().add(jTextField23);
-        jTextField23.setBounds(360, 400, 60, 30);
-
-        jTextField24.setEditable(false);
-        jTextField24.setHorizontalAlignment(javax.swing.JTextField.CENTER);
-        jTextField24.setText("40");
-        getContentPane().add(jTextField24);
-        jTextField24.setBounds(80, 340, 60, 30);
-
-        jTextField25.setEditable(false);
-        getContentPane().add(jTextField25);
-        jTextField25.setBounds(360, 370, 60, 30);
-
-        jButton1.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
-        jButton1.setText("set");
-        getContentPane().add(jButton1);
-        jButton1.setBounds(220, 70, 60, 30);
-
-        jButton2.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
-        jButton2.setText("req");
-        getContentPane().add(jButton2);
-        jButton2.setBounds(10, 70, 60, 30);
-
-        jTextField26.setHorizontalAlignment(javax.swing.JTextField.CENTER);
-        getContentPane().add(jTextField26);
-        jTextField26.setBounds(150, 70, 60, 30);
-
-        jTextField27.setHorizontalAlignment(javax.swing.JTextField.CENTER);
-        getContentPane().add(jTextField27);
-        jTextField27.setBounds(150, 100, 60, 30);
-
-        jTextField28.setHorizontalAlignment(javax.swing.JTextField.CENTER);
-        getContentPane().add(jTextField28);
-        jTextField28.setBounds(150, 130, 60, 30);
-
-        jTextField29.setHorizontalAlignment(javax.swing.JTextField.CENTER);
-        getContentPane().add(jTextField29);
-        jTextField29.setBounds(150, 160, 60, 30);
-
-        jTextField30.setHorizontalAlignment(javax.swing.JTextField.CENTER);
-        getContentPane().add(jTextField30);
-        jTextField30.setBounds(150, 190, 60, 30);
-
-        jTextField31.setHorizontalAlignment(javax.swing.JTextField.CENTER);
-        getContentPane().add(jTextField31);
-        jTextField31.setBounds(150, 220, 60, 30);
-
-        jTextField32.setHorizontalAlignment(javax.swing.JTextField.CENTER);
-        getContentPane().add(jTextField32);
-        jTextField32.setBounds(150, 250, 60, 30);
-
-        jTextField33.setHorizontalAlignment(javax.swing.JTextField.CENTER);
-        getContentPane().add(jTextField33);
-        jTextField33.setBounds(150, 280, 60, 30);
-
-        jTextField34.setHorizontalAlignment(javax.swing.JTextField.CENTER);
-        getContentPane().add(jTextField34);
-        jTextField34.setBounds(150, 310, 60, 30);
-
-        jTextField35.setHorizontalAlignment(javax.swing.JTextField.CENTER);
-        getContentPane().add(jTextField35);
-        jTextField35.setBounds(150, 370, 60, 30);
-
-        jTextField36.setHorizontalAlignment(javax.swing.JTextField.CENTER);
-        getContentPane().add(jTextField36);
-        jTextField36.setBounds(150, 340, 60, 30);
-
-        jButton3.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
-        jButton3.setText("set");
-        getContentPane().add(jButton3);
-        jButton3.setBounds(220, 100, 60, 30);
-
-        jButton4.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
-        jButton4.setText("req");
-        getContentPane().add(jButton4);
-        jButton4.setBounds(10, 100, 60, 30);
-
-        jButton5.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
-        jButton5.setText("set");
-        getContentPane().add(jButton5);
-        jButton5.setBounds(220, 160, 60, 30);
-
-        jButton6.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
-        jButton6.setText("req");
-        getContentPane().add(jButton6);
-        jButton6.setBounds(10, 160, 60, 30);
-
-        jButton7.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
-        jButton7.setText("set");
-        getContentPane().add(jButton7);
-        jButton7.setBounds(220, 130, 60, 30);
-
-        jButton8.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
-        jButton8.setText("req");
-        getContentPane().add(jButton8);
-        jButton8.setBounds(10, 130, 60, 30);
-
-        jButton9.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
-        jButton9.setText("req");
-        getContentPane().add(jButton9);
-        jButton9.setBounds(10, 250, 60, 30);
-
-        jButton10.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
-        jButton10.setText("set");
-        getContentPane().add(jButton10);
-        jButton10.setBounds(220, 280, 60, 30);
-
-        jButton11.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
-        jButton11.setText("req");
-        getContentPane().add(jButton11);
-        jButton11.setBounds(10, 280, 60, 30);
-
-        jButton12.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
-        jButton12.setText("set");
-        getContentPane().add(jButton12);
-        jButton12.setBounds(220, 250, 60, 30);
-
-        jButton13.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
-        jButton13.setText("req");
-        getContentPane().add(jButton13);
-        jButton13.setBounds(10, 220, 60, 30);
-
-        jButton14.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
-        jButton14.setText("req");
-        getContentPane().add(jButton14);
-        jButton14.setBounds(10, 190, 60, 30);
-
-        jButton15.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
-        jButton15.setText("set");
-        getContentPane().add(jButton15);
-        jButton15.setBounds(220, 190, 60, 30);
-
-        jButton16.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
-        jButton16.setText("set");
-        getContentPane().add(jButton16);
-        jButton16.setBounds(220, 220, 60, 30);
-
-        jButton17.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
-        jButton17.setText("req");
-        getContentPane().add(jButton17);
-        jButton17.setBounds(10, 370, 60, 30);
-
-        jButton20.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
-        jButton20.setText("set");
-        getContentPane().add(jButton20);
-        jButton20.setBounds(220, 370, 60, 30);
-
-        jButton21.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
-        jButton21.setText("req");
-        getContentPane().add(jButton21);
-        jButton21.setBounds(10, 340, 60, 30);
-
-        jButton22.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
-        jButton22.setText("req");
-        getContentPane().add(jButton22);
-        jButton22.setBounds(10, 310, 60, 30);
-
-        jButton23.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
-        jButton23.setText("set");
-        getContentPane().add(jButton23);
-        jButton23.setBounds(220, 310, 60, 30);
-
-        jButton24.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
-        jButton24.setText("set");
-        getContentPane().add(jButton24);
-        jButton24.setBounds(220, 340, 60, 30);
-        getContentPane().add(jTextField37);
-        jTextField37.setBounds(430, 70, 60, 30);
-        getContentPane().add(jTextField38);
-        jTextField38.setBounds(430, 100, 60, 30);
-        getContentPane().add(jTextField39);
-        jTextField39.setBounds(430, 130, 60, 30);
-        getContentPane().add(jTextField40);
-        jTextField40.setBounds(430, 160, 60, 30);
-        getContentPane().add(jTextField41);
-        jTextField41.setBounds(430, 190, 60, 30);
-        getContentPane().add(jTextField42);
-        jTextField42.setBounds(430, 220, 60, 30);
-        getContentPane().add(jTextField43);
-        jTextField43.setBounds(430, 250, 60, 30);
-        getContentPane().add(jTextField44);
-        jTextField44.setBounds(430, 280, 60, 30);
-        getContentPane().add(jTextField45);
-        jTextField45.setBounds(430, 310, 60, 30);
-        getContentPane().add(jTextField46);
-        jTextField46.setBounds(430, 340, 60, 30);
-        getContentPane().add(jTextField47);
-        jTextField47.setBounds(430, 400, 60, 30);
-        getContentPane().add(jTextField48);
-        jTextField48.setBounds(430, 370, 60, 30);
-        getContentPane().add(jTextField2);
-        jTextField2.setBounds(430, 40, 60, 30);
-
-        jButton18.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
-        jButton18.setText("set");
-        getContentPane().add(jButton18);
-        jButton18.setBounds(500, 40, 60, 30);
-
-        jButton19.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
-        jButton19.setText("set");
-        getContentPane().add(jButton19);
-        jButton19.setBounds(500, 70, 60, 30);
-
-        jButton25.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
-        jButton25.setText("set");
-        getContentPane().add(jButton25);
-        jButton25.setBounds(500, 130, 60, 30);
-
-        jButton26.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
-        jButton26.setText("set");
-        getContentPane().add(jButton26);
-        jButton26.setBounds(500, 100, 60, 30);
-
-        jButton27.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
-        jButton27.setText("set");
-        getContentPane().add(jButton27);
-        jButton27.setBounds(500, 250, 60, 30);
-
-        jButton28.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
-        jButton28.setText("set");
-        getContentPane().add(jButton28);
-        jButton28.setBounds(500, 220, 60, 30);
-
-        jButton29.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
-        jButton29.setText("set");
-        getContentPane().add(jButton29);
-        jButton29.setBounds(500, 160, 60, 30);
-
-        jButton30.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
-        jButton30.setText("set");
-        getContentPane().add(jButton30);
-        jButton30.setBounds(500, 190, 60, 30);
-
-        jButton31.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
-        jButton31.setText("set");
-        getContentPane().add(jButton31);
-        jButton31.setBounds(500, 340, 60, 30);
-
-        jButton32.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
-        jButton32.setText("set");
-        getContentPane().add(jButton32);
-        jButton32.setBounds(500, 280, 60, 30);
-
-        jButton33.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
-        jButton33.setText("set");
-        getContentPane().add(jButton33);
-        jButton33.setBounds(500, 310, 60, 30);
-
-        jButton34.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
-        jButton34.setText("req");
-        getContentPane().add(jButton34);
-        jButton34.setBounds(290, 40, 60, 30);
-
-        jButton35.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
-        jButton35.setText("req");
-        getContentPane().add(jButton35);
-        jButton35.setBounds(290, 70, 60, 30);
-
-        jButton36.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
-        jButton36.setText("req");
-        getContentPane().add(jButton36);
-        jButton36.setBounds(290, 130, 60, 30);
-
-        jButton37.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
-        jButton37.setText("req");
-        getContentPane().add(jButton37);
-        jButton37.setBounds(290, 100, 60, 30);
-
-        jButton38.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
-        jButton38.setText("req");
-        getContentPane().add(jButton38);
-        jButton38.setBounds(290, 220, 60, 30);
-
-        jButton39.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
-        jButton39.setText("req");
-        getContentPane().add(jButton39);
-        jButton39.setBounds(290, 250, 60, 30);
-
-        jButton40.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
-        jButton40.setText("req");
-        getContentPane().add(jButton40);
-        jButton40.setBounds(290, 190, 60, 30);
-
-        jButton41.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
-        jButton41.setText("req");
-        getContentPane().add(jButton41);
-        jButton41.setBounds(290, 160, 60, 30);
-
-        jButton42.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
-        jButton42.setText("req");
-        getContentPane().add(jButton42);
-        jButton42.setBounds(290, 340, 60, 30);
-
-        jButton43.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
-        jButton43.setText("req");
-        getContentPane().add(jButton43);
-        jButton43.setBounds(290, 310, 60, 30);
-
-        jButton44.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
-        jButton44.setText("req");
-        getContentPane().add(jButton44);
-        jButton44.setBounds(290, 280, 60, 30);
-
-        jButton45.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
-        jButton45.setText("req");
-        getContentPane().add(jButton45);
-        jButton45.setBounds(290, 400, 60, 30);
-
-        jButton46.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
-        jButton46.setText("req");
-        getContentPane().add(jButton46);
-        jButton46.setBounds(290, 370, 60, 30);
-
-        jButton47.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
-        jButton47.setText("set");
-        getContentPane().add(jButton47);
-        jButton47.setBounds(500, 400, 60, 30);
-
-        jButton48.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
-        jButton48.setText("set");
-        getContentPane().add(jButton48);
-        jButton48.setBounds(500, 370, 60, 30);
-
-        jButton49.setText("Выход");
-        jButton49.addActionListener(new java.awt.event.ActionListener() {
+        lblPort.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        lblPort.setText("<html><b><u>Порт</b></u></html>");
+        getContentPane().add(lblPort);
+        lblPort.setBounds(580, 10, 270, 30);
+        getContentPane().add(edtPort);
+        edtPort.setBounds(580, 50, 260, 30);
+
+        btnConnect.setText("Соединиться с прибором");
+        btnConnect.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton49ActionPerformed(evt);
+                btnConnectActionPerformed(evt);
             }
         });
-        getContentPane().add(jButton49);
-        jButton49.setBounds(580, 270, 260, 40);
+        getContentPane().add(btnConnect);
+        btnConnect.setBounds(580, 90, 260, 40);
 
-        jButton50.setText("Соединиться с прибором");
-        jButton50.addActionListener(new java.awt.event.ActionListener() {
+        lblPacksCounter.setText("Счётчик посылок:");
+        getContentPane().add(lblPacksCounter);
+        lblPacksCounter.setBounds(580, 140, 260, 20);
+
+        btnExit.setText("Выход");
+        btnExit.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton50ActionPerformed(evt);
+                btnExitActionPerformed(evt);
             }
         });
-        getContentPane().add(jButton50);
-        jButton50.setBounds(580, 70, 260, 40);
+        getContentPane().add(btnExit);
+        btnExit.setBounds(580, 340, 260, 40);
 
-        jButton51.setText("Обновить (запросить) таблицы");
-        jButton51.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton51ActionPerformed(evt);
-            }
-        });
-        getContentPane().add(jButton51);
-        jButton51.setBounds(580, 220, 260, 40);
+        lblTemperature.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        lblTemperature.setText("<html><b><u>Температура</b></u></html>");
+        getContentPane().add(lblTemperature);
+        lblTemperature.setBounds(10, 10, 270, 30);
+
+        btnT1Get.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
+        btnT1Get.setText("req");
+        getContentPane().add(btnT1Get);
+        btnT1Get.setBounds(20, 50, 60, 30);
+
+        edtT1Show.setEditable(false);
+        edtT1Show.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        edtT1Show.setText("-50");
+        getContentPane().add(edtT1Show);
+        edtT1Show.setBounds(90, 50, 60, 30);
+
+        edtT1Edit.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        getContentPane().add(edtT1Edit);
+        edtT1Edit.setBounds(160, 50, 60, 30);
+
+        btnT1Set.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
+        btnT1Set.setText("set");
+        getContentPane().add(btnT1Set);
+        btnT1Set.setBounds(230, 50, 60, 30);
+
+        btnT2Get.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
+        btnT2Get.setText("req");
+        getContentPane().add(btnT2Get);
+        btnT2Get.setBounds(20, 80, 60, 30);
+
+        edtT2Show.setEditable(false);
+        edtT2Show.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        edtT2Show.setText("-40");
+        getContentPane().add(edtT2Show);
+        edtT2Show.setBounds(90, 80, 60, 30);
+
+        edtT2Edit.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        getContentPane().add(edtT2Edit);
+        edtT2Edit.setBounds(160, 80, 60, 30);
+
+        btnT2Set.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
+        btnT2Set.setText("set");
+        getContentPane().add(btnT2Set);
+        btnT2Set.setBounds(230, 80, 60, 30);
+
+        btnT3Get.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
+        btnT3Get.setText("req");
+        getContentPane().add(btnT3Get);
+        btnT3Get.setBounds(20, 110, 60, 30);
+
+        edtT3Show.setEditable(false);
+        edtT3Show.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        edtT3Show.setText("-30");
+        getContentPane().add(edtT3Show);
+        edtT3Show.setBounds(90, 110, 60, 30);
+
+        edtT3Edit.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        getContentPane().add(edtT3Edit);
+        edtT3Edit.setBounds(160, 110, 60, 30);
+
+        btnT3Set.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
+        btnT3Set.setText("set");
+        getContentPane().add(btnT3Set);
+        btnT3Set.setBounds(230, 110, 60, 30);
+
+        btnT4Get.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
+        btnT4Get.setText("req");
+        getContentPane().add(btnT4Get);
+        btnT4Get.setBounds(20, 140, 60, 30);
+
+        edtT4Show.setEditable(false);
+        edtT4Show.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        edtT4Show.setText("-20");
+        getContentPane().add(edtT4Show);
+        edtT4Show.setBounds(90, 140, 60, 30);
+
+        edtT4Edit.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        getContentPane().add(edtT4Edit);
+        edtT4Edit.setBounds(160, 140, 60, 30);
+
+        btnT4Set.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
+        btnT4Set.setText("set");
+        getContentPane().add(btnT4Set);
+        btnT4Set.setBounds(230, 140, 60, 30);
+
+        btnT5Get.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
+        btnT5Get.setText("req");
+        getContentPane().add(btnT5Get);
+        btnT5Get.setBounds(20, 170, 60, 30);
+
+        edtT5Show.setEditable(false);
+        edtT5Show.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        edtT5Show.setText("-10");
+        getContentPane().add(edtT5Show);
+        edtT5Show.setBounds(90, 170, 60, 30);
+
+        edtT5Edit.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        getContentPane().add(edtT5Edit);
+        edtT5Edit.setBounds(160, 170, 60, 30);
+
+        btnT5Set.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
+        btnT5Set.setText("set");
+        getContentPane().add(btnT5Set);
+        btnT5Set.setBounds(230, 170, 60, 30);
+
+        btnT6Get.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
+        btnT6Get.setText("req");
+        getContentPane().add(btnT6Get);
+        btnT6Get.setBounds(20, 200, 60, 30);
+
+        edtT6Show.setEditable(false);
+        edtT6Show.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        edtT6Show.setText("0");
+        getContentPane().add(edtT6Show);
+        edtT6Show.setBounds(90, 200, 60, 30);
+
+        edtT6Edit.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        getContentPane().add(edtT6Edit);
+        edtT6Edit.setBounds(160, 200, 60, 30);
+
+        btnT6Set.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
+        btnT6Set.setText("set");
+        getContentPane().add(btnT6Set);
+        btnT6Set.setBounds(230, 200, 60, 30);
+
+        btnT7Get.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
+        btnT7Get.setText("req");
+        getContentPane().add(btnT7Get);
+        btnT7Get.setBounds(20, 230, 60, 30);
+
+        edtT7Show.setEditable(false);
+        edtT7Show.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        edtT7Show.setText("10");
+        getContentPane().add(edtT7Show);
+        edtT7Show.setBounds(90, 230, 60, 30);
+
+        edtT7Edit.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        getContentPane().add(edtT7Edit);
+        edtT7Edit.setBounds(160, 230, 60, 30);
+
+        btnT7Set.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
+        btnT7Set.setText("set");
+        getContentPane().add(btnT7Set);
+        btnT7Set.setBounds(230, 230, 60, 30);
+
+        btnT8Get.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
+        btnT8Get.setText("req");
+        getContentPane().add(btnT8Get);
+        btnT8Get.setBounds(20, 260, 60, 30);
+
+        edtT8Show.setEditable(false);
+        edtT8Show.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        edtT8Show.setText("20");
+        getContentPane().add(edtT8Show);
+        edtT8Show.setBounds(90, 260, 60, 30);
+
+        edtT8Edit.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        getContentPane().add(edtT8Edit);
+        edtT8Edit.setBounds(160, 260, 60, 30);
+
+        btnT8Set.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
+        btnT8Set.setText("set");
+        getContentPane().add(btnT8Set);
+        btnT8Set.setBounds(230, 260, 60, 30);
+
+        btnT9Get.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
+        btnT9Get.setText("req");
+        getContentPane().add(btnT9Get);
+        btnT9Get.setBounds(20, 290, 60, 30);
+
+        edtT9Show.setEditable(false);
+        edtT9Show.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        edtT9Show.setText("30");
+        getContentPane().add(edtT9Show);
+        edtT9Show.setBounds(90, 290, 60, 30);
+
+        edtT9Edit.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        getContentPane().add(edtT9Edit);
+        edtT9Edit.setBounds(160, 290, 60, 30);
+
+        btnT9Set.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
+        btnT9Set.setText("set");
+        getContentPane().add(btnT9Set);
+        btnT9Set.setBounds(230, 290, 60, 30);
+
+        btnT10Get.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
+        btnT10Get.setText("req");
+        getContentPane().add(btnT10Get);
+        btnT10Get.setBounds(20, 320, 60, 30);
+
+        edtT10Show.setEditable(false);
+        edtT10Show.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        edtT10Show.setText("40");
+        getContentPane().add(edtT10Show);
+        edtT10Show.setBounds(90, 320, 60, 30);
+
+        edtT10Edit.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        getContentPane().add(edtT10Edit);
+        edtT10Edit.setBounds(160, 320, 60, 30);
+
+        btnT10Set.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
+        btnT10Set.setText("set");
+        getContentPane().add(btnT10Set);
+        btnT10Set.setBounds(230, 320, 60, 30);
+
+        btnT11Get.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
+        btnT11Get.setText("req");
+        getContentPane().add(btnT11Get);
+        btnT11Get.setBounds(20, 350, 60, 30);
+
+        edtT11Show.setEditable(false);
+        edtT11Show.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        edtT11Show.setText("50");
+        getContentPane().add(edtT11Show);
+        edtT11Show.setBounds(90, 350, 60, 30);
+
+        edtT11Edit.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        getContentPane().add(edtT11Edit);
+        edtT11Edit.setBounds(160, 350, 60, 30);
+
+        btnT11Set.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
+        btnT11Set.setText("set");
+        getContentPane().add(btnT11Set);
+        btnT11Set.setBounds(230, 350, 60, 30);
+
+        lblPhaseShift.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        lblPhaseShift.setText("<html><b><u>Фазовый сдвиг</b></u></html>");
+        getContentPane().add(lblPhaseShift);
+        lblPhaseShift.setBounds(290, 10, 270, 30);
+
+        btnPS1Get.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
+        btnPS1Get.setText("req");
+        getContentPane().add(btnPS1Get);
+        btnPS1Get.setBounds(300, 50, 60, 30);
+
+        edtPS1Show.setEditable(false);
+        edtPS1Show.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        getContentPane().add(edtPS1Show);
+        edtPS1Show.setBounds(370, 50, 60, 30);
+        getContentPane().add(edtPS1Edit);
+        edtPS1Edit.setBounds(440, 50, 60, 30);
+
+        btnPS1Set.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
+        btnPS1Set.setText("set");
+        getContentPane().add(btnPS1Set);
+        btnPS1Set.setBounds(510, 50, 60, 30);
+
+        btnPS2Get.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
+        btnPS2Get.setText("req");
+        getContentPane().add(btnPS2Get);
+        btnPS2Get.setBounds(300, 80, 60, 30);
+
+        edtPS2Show.setEditable(false);
+        edtPS2Show.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        getContentPane().add(edtPS2Show);
+        edtPS2Show.setBounds(370, 80, 60, 30);
+        getContentPane().add(edtPS2Edit);
+        edtPS2Edit.setBounds(440, 80, 60, 30);
+
+        btnPS2Set.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
+        btnPS2Set.setText("set");
+        getContentPane().add(btnPS2Set);
+        btnPS2Set.setBounds(510, 80, 60, 30);
+
+        btnPS3Get.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
+        btnPS3Get.setText("req");
+        getContentPane().add(btnPS3Get);
+        btnPS3Get.setBounds(300, 110, 60, 30);
+
+        edtPS3Show.setEditable(false);
+        edtPS3Show.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        getContentPane().add(edtPS3Show);
+        edtPS3Show.setBounds(370, 110, 60, 30);
+        getContentPane().add(edtPS3Edit);
+        edtPS3Edit.setBounds(440, 110, 60, 30);
+
+        btnPS3Set.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
+        btnPS3Set.setText("set");
+        getContentPane().add(btnPS3Set);
+        btnPS3Set.setBounds(510, 110, 60, 30);
+
+        btnPS4Get.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
+        btnPS4Get.setText("req");
+        getContentPane().add(btnPS4Get);
+        btnPS4Get.setBounds(300, 140, 60, 30);
+
+        edtPS4Show.setEditable(false);
+        edtPS4Show.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        getContentPane().add(edtPS4Show);
+        edtPS4Show.setBounds(370, 140, 60, 30);
+        getContentPane().add(edtPS4Edit);
+        edtPS4Edit.setBounds(440, 140, 60, 30);
+
+        btnPS4Set.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
+        btnPS4Set.setText("set");
+        getContentPane().add(btnPS4Set);
+        btnPS4Set.setBounds(510, 140, 60, 30);
+
+        btnPS5Get.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
+        btnPS5Get.setText("req");
+        getContentPane().add(btnPS5Get);
+        btnPS5Get.setBounds(300, 170, 60, 30);
+
+        edtPS5Show.setEditable(false);
+        edtPS5Show.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        getContentPane().add(edtPS5Show);
+        edtPS5Show.setBounds(370, 170, 60, 30);
+        getContentPane().add(edtPS5Edit);
+        edtPS5Edit.setBounds(440, 170, 60, 30);
+
+        btnPS5Set.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
+        btnPS5Set.setText("set");
+        getContentPane().add(btnPS5Set);
+        btnPS5Set.setBounds(510, 170, 60, 30);
+
+        btnPS6Get.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
+        btnPS6Get.setText("req");
+        getContentPane().add(btnPS6Get);
+        btnPS6Get.setBounds(300, 200, 60, 30);
+
+        edtPS6Show.setEditable(false);
+        edtPS6Show.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        getContentPane().add(edtPS6Show);
+        edtPS6Show.setBounds(370, 200, 60, 30);
+        getContentPane().add(edtPS6Edit);
+        edtPS6Edit.setBounds(440, 200, 60, 30);
+
+        btnPS6Set.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
+        btnPS6Set.setText("set");
+        getContentPane().add(btnPS6Set);
+        btnPS6Set.setBounds(510, 200, 60, 30);
+
+        btnPS7Get.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
+        btnPS7Get.setText("req");
+        getContentPane().add(btnPS7Get);
+        btnPS7Get.setBounds(300, 230, 60, 30);
+
+        edtPS7Show.setEditable(false);
+        edtPS7Show.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        getContentPane().add(edtPS7Show);
+        edtPS7Show.setBounds(370, 230, 60, 30);
+        getContentPane().add(edtPS7Edit);
+        edtPS7Edit.setBounds(440, 230, 60, 30);
+
+        btnPS7Set.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
+        btnPS7Set.setText("set");
+        getContentPane().add(btnPS7Set);
+        btnPS7Set.setBounds(510, 230, 60, 30);
+
+        btnPS8Get.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
+        btnPS8Get.setText("req");
+        getContentPane().add(btnPS8Get);
+        btnPS8Get.setBounds(300, 260, 60, 30);
+
+        edtPS8Show.setEditable(false);
+        edtPS8Show.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        getContentPane().add(edtPS8Show);
+        edtPS8Show.setBounds(370, 260, 60, 30);
+        getContentPane().add(edtPS8Edit);
+        edtPS8Edit.setBounds(440, 260, 60, 30);
+
+        btnPS8Set.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
+        btnPS8Set.setText("set");
+        getContentPane().add(btnPS8Set);
+        btnPS8Set.setBounds(510, 260, 60, 30);
+
+        btnPS9Get.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
+        btnPS9Get.setText("req");
+        getContentPane().add(btnPS9Get);
+        btnPS9Get.setBounds(300, 290, 60, 30);
+
+        edtPS9Show.setEditable(false);
+        edtPS9Show.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        getContentPane().add(edtPS9Show);
+        edtPS9Show.setBounds(370, 290, 60, 30);
+        getContentPane().add(edtPS9Edit);
+        edtPS9Edit.setBounds(440, 290, 60, 30);
+
+        btnPS9Set.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
+        btnPS9Set.setText("set");
+        getContentPane().add(btnPS9Set);
+        btnPS9Set.setBounds(510, 290, 60, 30);
+
+        btnPS10Get.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
+        btnPS10Get.setText("req");
+        getContentPane().add(btnPS10Get);
+        btnPS10Get.setBounds(300, 320, 60, 30);
+
+        edtPS10Show.setEditable(false);
+        edtPS10Show.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        getContentPane().add(edtPS10Show);
+        edtPS10Show.setBounds(370, 320, 60, 30);
+        getContentPane().add(edtPS10Edit);
+        edtPS10Edit.setBounds(440, 320, 60, 30);
+
+        btnPS10Set.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
+        btnPS10Set.setText("set");
+        getContentPane().add(btnPS10Set);
+        btnPS10Set.setBounds(510, 320, 60, 30);
+
+        btnPS11Get.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
+        btnPS11Get.setText("req");
+        getContentPane().add(btnPS11Get);
+        btnPS11Get.setBounds(300, 350, 60, 30);
+
+        edtPS11Show.setEditable(false);
+        edtPS11Show.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        getContentPane().add(edtPS11Show);
+        edtPS11Show.setBounds(370, 350, 60, 30);
+        getContentPane().add(edtPS11Edit);
+        edtPS11Edit.setBounds(440, 350, 60, 30);
+
+        btnPS11Set.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
+        btnPS11Set.setText("set");
+        getContentPane().add(btnPS11Set);
+        btnPS11Set.setBounds(510, 350, 60, 30);
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jButton50ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton50ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jButton50ActionPerformed
+    private void btnConnectActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnConnectActionPerformed
+        if( theApp.m_bConnected == true) {
+            theApp.m_bConnected = false;
+        }
+        else {
+            String strPort = edtPort.getText();
+            //if( strPort.isEmpty())
+            theApp.m_bConnected = true;
+        }
+    }//GEN-LAST:event_btnConnectActionPerformed
 
-    private void jButton51ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton51ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jButton51ActionPerformed
-
-    private void jButton49ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton49ActionPerformed
+    private void btnExitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnExitActionPerformed
+        if( tRefreshStates != null) { tRefreshStates.stop(); tRefreshStates = null; }
+        if( tRefreshValues != null) { tRefreshValues.stop(); tRefreshValues = null; }
         dispose();
-    }//GEN-LAST:event_jButton49ActionPerformed
+    }//GEN-LAST:event_btnExitActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton jButton1;
-    private javax.swing.JButton jButton10;
-    private javax.swing.JButton jButton11;
-    private javax.swing.JButton jButton12;
-    private javax.swing.JButton jButton13;
-    private javax.swing.JButton jButton14;
-    private javax.swing.JButton jButton15;
-    private javax.swing.JButton jButton16;
-    private javax.swing.JButton jButton17;
-    private javax.swing.JButton jButton18;
-    private javax.swing.JButton jButton19;
-    private javax.swing.JButton jButton2;
-    private javax.swing.JButton jButton20;
-    private javax.swing.JButton jButton21;
-    private javax.swing.JButton jButton22;
-    private javax.swing.JButton jButton23;
-    private javax.swing.JButton jButton24;
-    private javax.swing.JButton jButton25;
-    private javax.swing.JButton jButton26;
-    private javax.swing.JButton jButton27;
-    private javax.swing.JButton jButton28;
-    private javax.swing.JButton jButton29;
-    private javax.swing.JButton jButton3;
-    private javax.swing.JButton jButton30;
-    private javax.swing.JButton jButton31;
-    private javax.swing.JButton jButton32;
-    private javax.swing.JButton jButton33;
-    private javax.swing.JButton jButton34;
-    private javax.swing.JButton jButton35;
-    private javax.swing.JButton jButton36;
-    private javax.swing.JButton jButton37;
-    private javax.swing.JButton jButton38;
-    private javax.swing.JButton jButton39;
-    private javax.swing.JButton jButton4;
-    private javax.swing.JButton jButton40;
-    private javax.swing.JButton jButton41;
-    private javax.swing.JButton jButton42;
-    private javax.swing.JButton jButton43;
-    private javax.swing.JButton jButton44;
-    private javax.swing.JButton jButton45;
-    private javax.swing.JButton jButton46;
-    private javax.swing.JButton jButton47;
-    private javax.swing.JButton jButton48;
-    private javax.swing.JButton jButton49;
-    private javax.swing.JButton jButton5;
-    private javax.swing.JButton jButton50;
-    private javax.swing.JButton jButton51;
-    private javax.swing.JButton jButton6;
-    private javax.swing.JButton jButton7;
-    private javax.swing.JButton jButton8;
-    private javax.swing.JButton jButton9;
-    private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel2;
-    private javax.swing.JTextField jTextField1;
-    private javax.swing.JTextField jTextField10;
-    private javax.swing.JTextField jTextField11;
-    private javax.swing.JTextField jTextField12;
-    private javax.swing.JTextField jTextField13;
-    private javax.swing.JTextField jTextField14;
-    private javax.swing.JTextField jTextField15;
-    private javax.swing.JTextField jTextField16;
-    private javax.swing.JTextField jTextField17;
-    private javax.swing.JTextField jTextField18;
-    private javax.swing.JTextField jTextField19;
-    private javax.swing.JTextField jTextField2;
-    private javax.swing.JTextField jTextField20;
-    private javax.swing.JTextField jTextField21;
-    private javax.swing.JTextField jTextField22;
-    private javax.swing.JTextField jTextField23;
-    private javax.swing.JTextField jTextField24;
-    private javax.swing.JTextField jTextField25;
-    private javax.swing.JTextField jTextField26;
-    private javax.swing.JTextField jTextField27;
-    private javax.swing.JTextField jTextField28;
-    private javax.swing.JTextField jTextField29;
-    private javax.swing.JTextField jTextField3;
-    private javax.swing.JTextField jTextField30;
-    private javax.swing.JTextField jTextField31;
-    private javax.swing.JTextField jTextField32;
-    private javax.swing.JTextField jTextField33;
-    private javax.swing.JTextField jTextField34;
-    private javax.swing.JTextField jTextField35;
-    private javax.swing.JTextField jTextField36;
-    private javax.swing.JTextField jTextField37;
-    private javax.swing.JTextField jTextField38;
-    private javax.swing.JTextField jTextField39;
-    private javax.swing.JTextField jTextField4;
-    private javax.swing.JTextField jTextField40;
-    private javax.swing.JTextField jTextField41;
-    private javax.swing.JTextField jTextField42;
-    private javax.swing.JTextField jTextField43;
-    private javax.swing.JTextField jTextField44;
-    private javax.swing.JTextField jTextField45;
-    private javax.swing.JTextField jTextField46;
-    private javax.swing.JTextField jTextField47;
-    private javax.swing.JTextField jTextField48;
-    private javax.swing.JTextField jTextField5;
-    private javax.swing.JTextField jTextField6;
-    private javax.swing.JTextField jTextField7;
-    private javax.swing.JTextField jTextField8;
-    private javax.swing.JTextField jTextField9;
+    public javax.swing.JButton btnConnect;
+    public javax.swing.JButton btnExit;
+    public javax.swing.JButton btnPS10Get;
+    public javax.swing.JButton btnPS10Set;
+    public javax.swing.JButton btnPS11Get;
+    public javax.swing.JButton btnPS11Set;
+    public javax.swing.JButton btnPS1Get;
+    public javax.swing.JButton btnPS1Set;
+    public javax.swing.JButton btnPS2Get;
+    public javax.swing.JButton btnPS2Set;
+    public javax.swing.JButton btnPS3Get;
+    public javax.swing.JButton btnPS3Set;
+    public javax.swing.JButton btnPS4Get;
+    public javax.swing.JButton btnPS4Set;
+    public javax.swing.JButton btnPS5Get;
+    public javax.swing.JButton btnPS5Set;
+    public javax.swing.JButton btnPS6Get;
+    public javax.swing.JButton btnPS6Set;
+    public javax.swing.JButton btnPS7Get;
+    public javax.swing.JButton btnPS7Set;
+    public javax.swing.JButton btnPS8Get;
+    public javax.swing.JButton btnPS8Set;
+    public javax.swing.JButton btnPS9Get;
+    public javax.swing.JButton btnPS9Set;
+    public javax.swing.JButton btnT10Get;
+    public javax.swing.JButton btnT10Set;
+    public javax.swing.JButton btnT11Get;
+    public javax.swing.JButton btnT11Set;
+    public javax.swing.JButton btnT1Get;
+    public javax.swing.JButton btnT1Set;
+    public javax.swing.JButton btnT2Get;
+    public javax.swing.JButton btnT2Set;
+    public javax.swing.JButton btnT3Get;
+    public javax.swing.JButton btnT3Set;
+    public javax.swing.JButton btnT4Get;
+    public javax.swing.JButton btnT4Set;
+    public javax.swing.JButton btnT5Get;
+    public javax.swing.JButton btnT5Set;
+    public javax.swing.JButton btnT6Get;
+    public javax.swing.JButton btnT6Set;
+    public javax.swing.JButton btnT7Get;
+    public javax.swing.JButton btnT7Set;
+    public javax.swing.JButton btnT8Get;
+    public javax.swing.JButton btnT8Set;
+    public javax.swing.JButton btnT9Get;
+    public javax.swing.JButton btnT9Set;
+    private javax.swing.JTextField edtPS10Edit;
+    private javax.swing.JTextField edtPS10Show;
+    private javax.swing.JTextField edtPS11Edit;
+    private javax.swing.JTextField edtPS11Show;
+    private javax.swing.JTextField edtPS1Edit;
+    private javax.swing.JTextField edtPS1Show;
+    private javax.swing.JTextField edtPS2Edit;
+    private javax.swing.JTextField edtPS2Show;
+    private javax.swing.JTextField edtPS3Edit;
+    private javax.swing.JTextField edtPS3Show;
+    private javax.swing.JTextField edtPS4Edit;
+    private javax.swing.JTextField edtPS4Show;
+    private javax.swing.JTextField edtPS5Edit;
+    private javax.swing.JTextField edtPS5Show;
+    private javax.swing.JTextField edtPS6Edit;
+    private javax.swing.JTextField edtPS6Show;
+    private javax.swing.JTextField edtPS7Edit;
+    private javax.swing.JTextField edtPS7Show;
+    private javax.swing.JTextField edtPS8Edit;
+    private javax.swing.JTextField edtPS8Show;
+    private javax.swing.JTextField edtPS9Edit;
+    private javax.swing.JTextField edtPS9Show;
+    private javax.swing.JTextField edtPort;
+    private javax.swing.JTextField edtT10Edit;
+    private javax.swing.JTextField edtT10Show;
+    private javax.swing.JTextField edtT11Edit;
+    private javax.swing.JTextField edtT11Show;
+    private javax.swing.JTextField edtT1Edit;
+    private javax.swing.JTextField edtT1Show;
+    private javax.swing.JTextField edtT2Edit;
+    private javax.swing.JTextField edtT2Show;
+    private javax.swing.JTextField edtT3Edit;
+    private javax.swing.JTextField edtT3Show;
+    private javax.swing.JTextField edtT4Edit;
+    private javax.swing.JTextField edtT4Show;
+    private javax.swing.JTextField edtT5Edit;
+    private javax.swing.JTextField edtT5Show;
+    private javax.swing.JTextField edtT6Edit;
+    private javax.swing.JTextField edtT6Show;
+    private javax.swing.JTextField edtT7Edit;
+    private javax.swing.JTextField edtT7Show;
+    private javax.swing.JTextField edtT8Edit;
+    private javax.swing.JTextField edtT8Show;
+    private javax.swing.JTextField edtT9Edit;
+    private javax.swing.JTextField edtT9Show;
+    private javax.swing.JLabel lblPacksCounter;
+    private javax.swing.JLabel lblPhaseShift;
+    private javax.swing.JLabel lblPort;
+    private javax.swing.JLabel lblTemperature;
     // End of variables declaration//GEN-END:variables
 }

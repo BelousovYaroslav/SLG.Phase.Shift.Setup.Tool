@@ -20,11 +20,17 @@ public class SLG_PSST_App {
     
     private ServerSocket m_pSingleInstanceSocketServer;
     
+    public boolean m_bConnected;
     private final String m_strSLGrootEnvVar;
     public String GetSLGRoot() { return m_strSLGrootEnvVar; }
     
     static Logger logger = Logger.getLogger(SLG_PSST_App.class);
 
+    public final int m_DevT[] = new int[11];
+    public final int m_DevPS[] = new int[11];
+    
+    public int m_nPacksCounter;
+            
     SLG_PSST_Settings m_pSettings;
     public SLG_PSST_App() {
         m_strSLGrootEnvVar = System.getenv( "SLG_ROOT");
@@ -38,11 +44,13 @@ public class SLG_PSST_App {
             m_pSingleInstanceSocketServer = new ServerSocket( m_pSettings.GetSingleInstanceSocketServerPort());
         }
         catch( Exception ex) {
-            MessageBoxError( "Модуль просмотра архивных данных уже запущен.\nПоищите на других \"экранах\".", "Модуль просмотра архивных данных");
+            MessageBoxError( "Уже есть запущенный экземпляр утилиты редактирования параметров калибровки фазового сдвига.\nПоищите на других \"экранах\".", "Утилита редактирования калибровки фазового сдвига");
             logger.error( "Не смогли открыть сокет для проверки запуска только одной копии программы! Программа уже запущена?", ex);
             m_pSingleInstanceSocketServer = null;
             return;
         }
+        
+        m_bConnected = false;
     }
     
     
