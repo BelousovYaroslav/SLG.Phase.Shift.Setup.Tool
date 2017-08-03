@@ -25,7 +25,7 @@ public class SLG_PSST_Settings {
     public int GetSingleInstanceSocketServerPort() { return m_nSingleInstanceSocketServerPort;}
     
     public SLG_PSST_Settings( String strAMSRoot) {
-        m_nSingleInstanceSocketServerPort = 10005;
+        m_nSingleInstanceSocketServerPort = 20000;
         
         ReadSettings();
     }

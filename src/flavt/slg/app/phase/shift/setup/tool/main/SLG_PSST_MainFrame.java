@@ -7,7 +7,6 @@ package flavt.slg.app.phase.shift.setup.tool.main;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import javax.swing.JEditorPane;
 import javax.swing.JTextField;
 import javax.swing.Timer;
 
