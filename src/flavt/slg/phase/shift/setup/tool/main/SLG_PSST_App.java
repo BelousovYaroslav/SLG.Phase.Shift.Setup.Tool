@@ -3,8 +3,9 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package flavt.slg.app.phase.shift.setup.tool.main;
+package flavt.slg.phase.shift.setup.tool.main;
 
+import flavt.slg.phase.shift.setup.tool.communication.SLG_PSST_CircleBuffer;
 import java.io.File;
 import java.net.ServerSocket;
 import javax.swing.JOptionPane;
@@ -26,14 +27,37 @@ public class SLG_PSST_App {
     
     static Logger logger = Logger.getLogger(SLG_PSST_App.class);
 
-    public final int m_DevT[] = new int[11];
-    public final int m_DevPS[] = new int[11];
+    private final SLG_PSST_Settings m_pSettings;
+    public SLG_PSST_Settings GetSettings() { return m_pSettings; }
     
-    public int m_nPacksCounter;
+    public SLG_PSST_CircleBuffer m_bfCircleBuffer;
+    
+    public final int LIST_PARAMS_LEN = 11;
+    
+    public boolean m_bParamTDefined[];
+    public int m_DevT[];
+    public boolean m_bParamPhshDefined[];
+    public int m_DevPhsh[];
+    
+    public String m_strVersion;
             
-    SLG_PSST_Settings m_pSettings;
+    public int m_nMarkerFails;
+    public int m_nCounterFails;
+    public int m_nCheckSummFails;
+    public int m_nPacksCounter;
+    
     public SLG_PSST_App() {
         m_strSLGrootEnvVar = System.getenv( "SLG_ROOT");
+        
+        m_bParamTDefined = new boolean[ LIST_PARAMS_LEN];
+        m_DevT = new int[ LIST_PARAMS_LEN];
+        m_bParamPhshDefined = new boolean[ LIST_PARAMS_LEN];
+        m_DevPhsh = new int[ LIST_PARAMS_LEN];
+        
+        for( int i = 0; i < LIST_PARAMS_LEN; i++) {
+            m_bParamTDefined[i] = false; m_bParamPhshDefined[i] = false;
+            m_DevT[i] = 0xFFFF; m_DevPhsh[i] = 0xFFFF;
+        }
         
         //SETTINGS
         m_pSettings = new SLG_PSST_Settings( m_strSLGrootEnvVar);
