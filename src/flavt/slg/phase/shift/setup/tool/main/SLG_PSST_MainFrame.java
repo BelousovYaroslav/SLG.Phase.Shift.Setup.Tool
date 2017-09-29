@@ -14,6 +14,7 @@ import java.awt.event.ActionListener;
 import java.util.Iterator;
 import java.util.LinkedList;
 import javax.swing.JButton;
+import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 import javax.swing.Timer;
 import jssc.SerialPort;
@@ -84,8 +85,18 @@ public class SLG_PSST_MainFrame extends javax.swing.JFrame {
             @Override
             public void actionPerformed( ActionEvent e) {
                 
+                btnConnect.setEnabled( !theApp.m_bConnected);
+                btnDisconnect.setEnabled( theApp.m_bConnected);
+                
+                
                 boolean bAllDefined = true;
                 for( int i = 0; i < theApp.LIST_PARAMS_LEN; bAllDefined = bAllDefined & theApp.m_bParamTDefined[i] & theApp.m_bParamPhshDefined[i++]);
+                
+                
+                btnUseIt.setEnabled( theApp.m_bConnected && bAllDefined);
+                btnDontUseIt.setEnabled( theApp.m_bConnected && bAllDefined);
+                btnResetCalibData.setEnabled( theApp.m_bConnected && bAllDefined);
+                btnSaveData.setEnabled( theApp.m_bConnected && bAllDefined);
                 
                 JButton btnsTGet[] = { btnT1Get, btnT2Get, btnT3Get, btnT4Get,
                                        btnT5Get, btnT6Get, btnT7Get, btnT8Get,
@@ -105,9 +116,9 @@ public class SLG_PSST_MainFrame extends javax.swing.JFrame {
                         
                 for( int i=0; i<11; i++) {
                     btnsTGet[i].setEnabled( theApp.m_bConnected && bAllDefined);
-                    btnsTSet[i].setEnabled( theApp.m_bConnected && bAllDefined);
+                    btnsTSet[i].setEnabled( theApp.m_bConnected && bAllDefined && theApp.m_nPhShUsage == SLG_PSST_App.PHASE_SHIFT_USAGE_OFF);
                     btnsPhshGet[i].setEnabled( theApp.m_bConnected && bAllDefined);
-                    btnsPhshSet[i].setEnabled( theApp.m_bConnected && bAllDefined);
+                    btnsPhshSet[i].setEnabled( theApp.m_bConnected && bAllDefined && theApp.m_nPhShUsage == SLG_PSST_App.PHASE_SHIFT_USAGE_OFF);
                 }
 
             }
@@ -123,10 +134,10 @@ public class SLG_PSST_MainFrame extends javax.swing.JFrame {
                     String strStatus = "";
                     
                     if( !theApp.m_strVersion.isEmpty())
-                        strStatus = "Версия ПО прибора = " + theApp.m_strVersion + "   ";
+                        strStatus = "  Версия ПО прибора = " + theApp.m_strVersion;
                     
                     strStatus +=
-                            String.format( "MF:%d CF:%d CSF:%d PC:%d",
+                            String.format( "  MF:%d CF:%d CSF:%d PC:%d",
                                     theApp.m_nMarkerFails,
                                     theApp.m_nCounterFails,
                                     theApp.m_nCheckSummFails,
@@ -137,10 +148,34 @@ public class SLG_PSST_MainFrame extends javax.swing.JFrame {
                     lblConnectionStateValue.setText( strStatus);
                 }
                 else {
-                    lblConnectionStateValue.setText( "Нет соединения");
+                    lblConnectionStateValue.setText( "  Нет соединения");
                 }
                     
-                    
+                if( theApp.m_bConnected) {
+                    switch( theApp.m_nPhShUsage) {
+                        case SLG_PSST_App.PHASE_SHIFT_USAGE_ON:
+                            lblPhaseShiftUsageValue.setText( "ВКЛ"); break;
+                        case SLG_PSST_App.PHASE_SHIFT_USAGE_OFF:
+                            lblPhaseShiftUsageValue.setText( "ВЫКЛ"); break;
+                        case SLG_PSST_App.PHASE_SHIFT_USAGE_UNKNOWN:
+                            lblPhaseShiftUsageValue.setText( "НЕИЗВ"); break;
+                        default:
+                            logger.warn( "Странное значение использования фазового сдвига!");
+                            lblPhaseShiftUsageValue.setText( "????"); break;
+                
+                    }
+                }
+                else {
+                    lblPhaseShiftUsageValue.setText( "XXX");
+                }
+                
+                if( theApp.m_bConnected) {
+                    lblCurrentPhaseShiftValue.setText( String.format( "0x%02X", theApp.m_nCurrentPhaseShift));
+                }
+                else {
+                    lblCurrentPhaseShiftValue.setText( "XXX");
+                }
+                
                 JTextField edtsT[] =  { edtT1Show, edtT2Show, edtT3Show, edtT4Show, edtT5Show,
                                         edtT6Show, edtT7Show, edtT8Show, edtT9Show, edtT10Show,
                                         edtT11Show };
@@ -186,45 +221,14 @@ public class SLG_PSST_MainFrame extends javax.swing.JFrame {
                 if( theApp.m_bConnected && serialPort != null && serialPort.isOpened()) {
                     
                     if( theApp.m_strVersion.isEmpty()) {
-                        byte aBytes[] = new byte[4];
-
-                        aBytes[0] = SLG_ConstantsCmd.SLG_CMD_REQ;
-                        aBytes[1] = SLG_ConstantsParams.SLG_PARAM_VERSION;
-                        aBytes[2] = 0;
-                        aBytes[3] = 0;
-
-                        try {
-                            serialPort.writeBytes( aBytes);
-                            logger.trace( ">> VERSION");
-                        } catch (SerialPortException ex) {
-                            logger.error( "COM-Communication exception", ex);
-                            theApp.m_bConnected = false;
-                            SLG_PSST_App.MessageBoxError( "При попытке записи в порт получили исключительную ситуацию:\n\n" + ex.toString(), "SLG_APST");
-                            return;
-                        }
+                        SendComandRequestParam( ( byte) SLG_ConstantsParams.SLG_PARAM_VERSION, ( byte) 0);
                     }
                     else {
-                        byte aBytes[] = new byte[4];
-
                         if( m_itRequestedParams.hasNext() == false)
                             m_itRequestedParams = m_lstRequestedParams.iterator();
                         
                         ReqItem item = ( ReqItem) m_itRequestedParams.next();
-                        aBytes[0] = SLG_ConstantsCmd.SLG_CMD_REQ;
-                        aBytes[1] = item.m_nParamIndex;
-                        aBytes[2] = item.m_nParamSubIndex;
-                        aBytes[3] = 0;
-
-                        try {
-                            serialPort.writeBytes( aBytes);
-                            logger.trace( ">> PARAM_" + item.m_nParamIndex + "." + item.m_nParamSubIndex);
-                        } catch (SerialPortException ex) {
-                            logger.error( "COM-Communication exception", ex);
-                            theApp.m_bConnected = false;
-                            SLG_PSST_App.MessageBoxError( "При попытке записи в порт получили исключительную ситуацию:\n\n" + ex.toString(), "SLG_APST");
-                            return;
-                        }
-                        
+                        SendComandRequestParam( item.m_nParamIndex, item.m_nParamSubIndex);
                     }
                 }
             }
@@ -337,16 +341,20 @@ public class SLG_PSST_MainFrame extends javax.swing.JFrame {
         edtPS11Show = new javax.swing.JTextField();
         edtPS11Edit = new javax.swing.JTextField();
         btnPS11Set = new javax.swing.JButton();
-        jLabel1 = new javax.swing.JLabel();
+        lblPhaseShiftUsageTitle = new javax.swing.JLabel();
         btnDontUseIt = new javax.swing.JButton();
         btnUseIt = new javax.swing.JButton();
         btnResetCalibData = new javax.swing.JButton();
         btnDisconnect = new javax.swing.JButton();
         lblConnectionStateValue = new javax.swing.JLabel();
+        lblPhaseShiftUsageValue = new javax.swing.JLabel();
+        btnSaveData = new javax.swing.JButton();
+        lblCurrentPhaseShiftTitle = new javax.swing.JLabel();
+        lblCurrentPhaseShiftValue = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("МЛГ3Б. Утилита для редактирования калибровки фазового сдвига  (С) ФЛАВТ   2017.07.31 15:52");
-        setMinimumSize(new java.awt.Dimension(580, 590));
+        setMinimumSize(new java.awt.Dimension(580, 640));
         setResizable(false);
         addWindowListener(new java.awt.event.WindowAdapter() {
             public void windowClosing(java.awt.event.WindowEvent evt) {
@@ -378,423 +386,654 @@ public class SLG_PSST_MainFrame extends javax.swing.JFrame {
         lblTemperature.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         lblTemperature.setText("<html><b><u>Температура</b></u></html>");
         getContentPane().add(lblTemperature);
-        lblTemperature.setBounds(20, 140, 270, 30);
+        lblTemperature.setBounds(20, 170, 270, 30);
 
         btnT1Get.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
         btnT1Get.setText("req");
+        btnT1Get.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnT1GetActionPerformed(evt);
+            }
+        });
         getContentPane().add(btnT1Get);
-        btnT1Get.setBounds(20, 180, 60, 30);
+        btnT1Get.setBounds(20, 210, 60, 30);
 
         edtT1Show.setEditable(false);
         edtT1Show.setHorizontalAlignment(javax.swing.JTextField.CENTER);
-        edtT1Show.setText("-50");
+        edtT1Show.setEnabled(false);
         getContentPane().add(edtT1Show);
-        edtT1Show.setBounds(90, 180, 60, 30);
+        edtT1Show.setBounds(90, 210, 60, 30);
 
         edtT1Edit.setHorizontalAlignment(javax.swing.JTextField.CENTER);
         getContentPane().add(edtT1Edit);
-        edtT1Edit.setBounds(160, 180, 60, 30);
+        edtT1Edit.setBounds(160, 210, 60, 30);
 
         btnT1Set.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
         btnT1Set.setText("set");
+        btnT1Set.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnT1SetActionPerformed(evt);
+            }
+        });
         getContentPane().add(btnT1Set);
-        btnT1Set.setBounds(230, 180, 60, 30);
+        btnT1Set.setBounds(230, 210, 60, 30);
 
         btnT2Get.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
         btnT2Get.setText("req");
+        btnT2Get.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnT2GetActionPerformed(evt);
+            }
+        });
         getContentPane().add(btnT2Get);
-        btnT2Get.setBounds(20, 210, 60, 30);
+        btnT2Get.setBounds(20, 240, 60, 30);
 
         edtT2Show.setEditable(false);
         edtT2Show.setHorizontalAlignment(javax.swing.JTextField.CENTER);
-        edtT2Show.setText("-40");
+        edtT2Show.setEnabled(false);
         getContentPane().add(edtT2Show);
-        edtT2Show.setBounds(90, 210, 60, 30);
+        edtT2Show.setBounds(90, 240, 60, 30);
 
         edtT2Edit.setHorizontalAlignment(javax.swing.JTextField.CENTER);
         getContentPane().add(edtT2Edit);
-        edtT2Edit.setBounds(160, 210, 60, 30);
+        edtT2Edit.setBounds(160, 240, 60, 30);
 
         btnT2Set.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
         btnT2Set.setText("set");
+        btnT2Set.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnT2SetActionPerformed(evt);
+            }
+        });
         getContentPane().add(btnT2Set);
-        btnT2Set.setBounds(230, 210, 60, 30);
+        btnT2Set.setBounds(230, 240, 60, 30);
 
         btnT3Get.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
         btnT3Get.setText("req");
+        btnT3Get.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnT3GetActionPerformed(evt);
+            }
+        });
         getContentPane().add(btnT3Get);
-        btnT3Get.setBounds(20, 240, 60, 30);
+        btnT3Get.setBounds(20, 270, 60, 30);
 
         edtT3Show.setEditable(false);
         edtT3Show.setHorizontalAlignment(javax.swing.JTextField.CENTER);
-        edtT3Show.setText("-30");
+        edtT3Show.setEnabled(false);
         getContentPane().add(edtT3Show);
-        edtT3Show.setBounds(90, 240, 60, 30);
+        edtT3Show.setBounds(90, 270, 60, 30);
 
         edtT3Edit.setHorizontalAlignment(javax.swing.JTextField.CENTER);
         getContentPane().add(edtT3Edit);
-        edtT3Edit.setBounds(160, 240, 60, 30);
+        edtT3Edit.setBounds(160, 270, 60, 30);
 
         btnT3Set.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
         btnT3Set.setText("set");
+        btnT3Set.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnT3SetActionPerformed(evt);
+            }
+        });
         getContentPane().add(btnT3Set);
-        btnT3Set.setBounds(230, 240, 60, 30);
+        btnT3Set.setBounds(230, 270, 60, 30);
 
         btnT4Get.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
         btnT4Get.setText("req");
+        btnT4Get.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnT4GetActionPerformed(evt);
+            }
+        });
         getContentPane().add(btnT4Get);
-        btnT4Get.setBounds(20, 270, 60, 30);
+        btnT4Get.setBounds(20, 300, 60, 30);
 
         edtT4Show.setEditable(false);
         edtT4Show.setHorizontalAlignment(javax.swing.JTextField.CENTER);
-        edtT4Show.setText("-20");
+        edtT4Show.setEnabled(false);
         getContentPane().add(edtT4Show);
-        edtT4Show.setBounds(90, 270, 60, 30);
+        edtT4Show.setBounds(90, 300, 60, 30);
 
         edtT4Edit.setHorizontalAlignment(javax.swing.JTextField.CENTER);
         getContentPane().add(edtT4Edit);
-        edtT4Edit.setBounds(160, 270, 60, 30);
+        edtT4Edit.setBounds(160, 300, 60, 30);
 
         btnT4Set.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
         btnT4Set.setText("set");
+        btnT4Set.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnT4SetActionPerformed(evt);
+            }
+        });
         getContentPane().add(btnT4Set);
-        btnT4Set.setBounds(230, 270, 60, 30);
+        btnT4Set.setBounds(230, 300, 60, 30);
 
         btnT5Get.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
         btnT5Get.setText("req");
+        btnT5Get.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnT5GetActionPerformed(evt);
+            }
+        });
         getContentPane().add(btnT5Get);
-        btnT5Get.setBounds(20, 300, 60, 30);
+        btnT5Get.setBounds(20, 330, 60, 30);
 
         edtT5Show.setEditable(false);
         edtT5Show.setHorizontalAlignment(javax.swing.JTextField.CENTER);
-        edtT5Show.setText("-10");
+        edtT5Show.setEnabled(false);
         getContentPane().add(edtT5Show);
-        edtT5Show.setBounds(90, 300, 60, 30);
+        edtT5Show.setBounds(90, 330, 60, 30);
 
         edtT5Edit.setHorizontalAlignment(javax.swing.JTextField.CENTER);
         getContentPane().add(edtT5Edit);
-        edtT5Edit.setBounds(160, 300, 60, 30);
+        edtT5Edit.setBounds(160, 330, 60, 30);
 
         btnT5Set.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
         btnT5Set.setText("set");
+        btnT5Set.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnT5SetActionPerformed(evt);
+            }
+        });
         getContentPane().add(btnT5Set);
-        btnT5Set.setBounds(230, 300, 60, 30);
+        btnT5Set.setBounds(230, 330, 60, 30);
 
         btnT6Get.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
         btnT6Get.setText("req");
+        btnT6Get.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnT6GetActionPerformed(evt);
+            }
+        });
         getContentPane().add(btnT6Get);
-        btnT6Get.setBounds(20, 330, 60, 30);
+        btnT6Get.setBounds(20, 360, 60, 30);
 
         edtT6Show.setEditable(false);
         edtT6Show.setHorizontalAlignment(javax.swing.JTextField.CENTER);
-        edtT6Show.setText("0");
+        edtT6Show.setEnabled(false);
         getContentPane().add(edtT6Show);
-        edtT6Show.setBounds(90, 330, 60, 30);
+        edtT6Show.setBounds(90, 360, 60, 30);
 
         edtT6Edit.setHorizontalAlignment(javax.swing.JTextField.CENTER);
         getContentPane().add(edtT6Edit);
-        edtT6Edit.setBounds(160, 330, 60, 30);
+        edtT6Edit.setBounds(160, 360, 60, 30);
 
         btnT6Set.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
         btnT6Set.setText("set");
+        btnT6Set.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnT6SetActionPerformed(evt);
+            }
+        });
         getContentPane().add(btnT6Set);
-        btnT6Set.setBounds(230, 330, 60, 30);
+        btnT6Set.setBounds(230, 360, 60, 30);
 
         btnT7Get.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
         btnT7Get.setText("req");
+        btnT7Get.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnT7GetActionPerformed(evt);
+            }
+        });
         getContentPane().add(btnT7Get);
-        btnT7Get.setBounds(20, 360, 60, 30);
+        btnT7Get.setBounds(20, 390, 60, 30);
 
         edtT7Show.setEditable(false);
         edtT7Show.setHorizontalAlignment(javax.swing.JTextField.CENTER);
-        edtT7Show.setText("10");
+        edtT7Show.setEnabled(false);
         getContentPane().add(edtT7Show);
-        edtT7Show.setBounds(90, 360, 60, 30);
+        edtT7Show.setBounds(90, 390, 60, 30);
 
         edtT7Edit.setHorizontalAlignment(javax.swing.JTextField.CENTER);
         getContentPane().add(edtT7Edit);
-        edtT7Edit.setBounds(160, 360, 60, 30);
+        edtT7Edit.setBounds(160, 390, 60, 30);
 
         btnT7Set.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
         btnT7Set.setText("set");
+        btnT7Set.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnT7SetActionPerformed(evt);
+            }
+        });
         getContentPane().add(btnT7Set);
-        btnT7Set.setBounds(230, 360, 60, 30);
+        btnT7Set.setBounds(230, 390, 60, 30);
 
         btnT8Get.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
         btnT8Get.setText("req");
+        btnT8Get.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnT8GetActionPerformed(evt);
+            }
+        });
         getContentPane().add(btnT8Get);
-        btnT8Get.setBounds(20, 390, 60, 30);
+        btnT8Get.setBounds(20, 420, 60, 30);
 
         edtT8Show.setEditable(false);
         edtT8Show.setHorizontalAlignment(javax.swing.JTextField.CENTER);
-        edtT8Show.setText("20");
+        edtT8Show.setEnabled(false);
         getContentPane().add(edtT8Show);
-        edtT8Show.setBounds(90, 390, 60, 30);
+        edtT8Show.setBounds(90, 420, 60, 30);
 
         edtT8Edit.setHorizontalAlignment(javax.swing.JTextField.CENTER);
         getContentPane().add(edtT8Edit);
-        edtT8Edit.setBounds(160, 390, 60, 30);
+        edtT8Edit.setBounds(160, 420, 60, 30);
 
         btnT8Set.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
         btnT8Set.setText("set");
+        btnT8Set.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnT8SetActionPerformed(evt);
+            }
+        });
         getContentPane().add(btnT8Set);
-        btnT8Set.setBounds(230, 390, 60, 30);
+        btnT8Set.setBounds(230, 420, 60, 30);
 
         btnT9Get.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
         btnT9Get.setText("req");
+        btnT9Get.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnT9GetActionPerformed(evt);
+            }
+        });
         getContentPane().add(btnT9Get);
-        btnT9Get.setBounds(20, 420, 60, 30);
+        btnT9Get.setBounds(20, 450, 60, 30);
 
         edtT9Show.setEditable(false);
         edtT9Show.setHorizontalAlignment(javax.swing.JTextField.CENTER);
-        edtT9Show.setText("30");
+        edtT9Show.setEnabled(false);
         getContentPane().add(edtT9Show);
-        edtT9Show.setBounds(90, 420, 60, 30);
+        edtT9Show.setBounds(90, 450, 60, 30);
 
         edtT9Edit.setHorizontalAlignment(javax.swing.JTextField.CENTER);
         getContentPane().add(edtT9Edit);
-        edtT9Edit.setBounds(160, 420, 60, 30);
+        edtT9Edit.setBounds(160, 450, 60, 30);
 
         btnT9Set.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
         btnT9Set.setText("set");
+        btnT9Set.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnT9SetActionPerformed(evt);
+            }
+        });
         getContentPane().add(btnT9Set);
-        btnT9Set.setBounds(230, 420, 60, 30);
+        btnT9Set.setBounds(230, 450, 60, 30);
 
         btnT10Get.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
         btnT10Get.setText("req");
+        btnT10Get.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnT10GetActionPerformed(evt);
+            }
+        });
         getContentPane().add(btnT10Get);
-        btnT10Get.setBounds(20, 450, 60, 30);
+        btnT10Get.setBounds(20, 480, 60, 30);
 
         edtT10Show.setEditable(false);
         edtT10Show.setHorizontalAlignment(javax.swing.JTextField.CENTER);
-        edtT10Show.setText("40");
+        edtT10Show.setEnabled(false);
         getContentPane().add(edtT10Show);
-        edtT10Show.setBounds(90, 450, 60, 30);
+        edtT10Show.setBounds(90, 480, 60, 30);
 
         edtT10Edit.setHorizontalAlignment(javax.swing.JTextField.CENTER);
         getContentPane().add(edtT10Edit);
-        edtT10Edit.setBounds(160, 450, 60, 30);
+        edtT10Edit.setBounds(160, 480, 60, 30);
 
         btnT10Set.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
         btnT10Set.setText("set");
+        btnT10Set.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnT10SetActionPerformed(evt);
+            }
+        });
         getContentPane().add(btnT10Set);
-        btnT10Set.setBounds(230, 450, 60, 30);
+        btnT10Set.setBounds(230, 480, 60, 30);
 
         btnT11Get.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
         btnT11Get.setText("req");
+        btnT11Get.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnT11GetActionPerformed(evt);
+            }
+        });
         getContentPane().add(btnT11Get);
-        btnT11Get.setBounds(20, 480, 60, 30);
+        btnT11Get.setBounds(20, 510, 60, 30);
 
         edtT11Show.setEditable(false);
         edtT11Show.setHorizontalAlignment(javax.swing.JTextField.CENTER);
-        edtT11Show.setText("50");
+        edtT11Show.setEnabled(false);
         getContentPane().add(edtT11Show);
-        edtT11Show.setBounds(90, 480, 60, 30);
+        edtT11Show.setBounds(90, 510, 60, 30);
 
         edtT11Edit.setHorizontalAlignment(javax.swing.JTextField.CENTER);
         getContentPane().add(edtT11Edit);
-        edtT11Edit.setBounds(160, 480, 60, 30);
+        edtT11Edit.setBounds(160, 510, 60, 30);
 
         btnT11Set.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
         btnT11Set.setText("set");
+        btnT11Set.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnT11SetActionPerformed(evt);
+            }
+        });
         getContentPane().add(btnT11Set);
-        btnT11Set.setBounds(230, 480, 60, 30);
+        btnT11Set.setBounds(230, 510, 60, 30);
 
         lblPhaseShift.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         lblPhaseShift.setText("<html><b><u>Фазовый сдвиг</b></u></html>");
         getContentPane().add(lblPhaseShift);
-        lblPhaseShift.setBounds(300, 140, 270, 30);
+        lblPhaseShift.setBounds(300, 170, 270, 30);
 
         btnPS1Get.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
         btnPS1Get.setText("req");
+        btnPS1Get.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnPS1GetActionPerformed(evt);
+            }
+        });
         getContentPane().add(btnPS1Get);
-        btnPS1Get.setBounds(300, 180, 60, 30);
+        btnPS1Get.setBounds(300, 210, 60, 30);
 
         edtPS1Show.setEditable(false);
         edtPS1Show.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        edtPS1Show.setEnabled(false);
         getContentPane().add(edtPS1Show);
-        edtPS1Show.setBounds(370, 180, 60, 30);
+        edtPS1Show.setBounds(370, 210, 60, 30);
         getContentPane().add(edtPS1Edit);
-        edtPS1Edit.setBounds(440, 180, 60, 30);
+        edtPS1Edit.setBounds(440, 210, 60, 30);
 
         btnPS1Set.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
         btnPS1Set.setText("set");
+        btnPS1Set.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnPS1SetActionPerformed(evt);
+            }
+        });
         getContentPane().add(btnPS1Set);
-        btnPS1Set.setBounds(510, 180, 60, 30);
+        btnPS1Set.setBounds(510, 210, 60, 30);
 
         btnPS2Get.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
         btnPS2Get.setText("req");
+        btnPS2Get.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnPS2GetActionPerformed(evt);
+            }
+        });
         getContentPane().add(btnPS2Get);
-        btnPS2Get.setBounds(300, 210, 60, 30);
+        btnPS2Get.setBounds(300, 240, 60, 30);
 
         edtPS2Show.setEditable(false);
         edtPS2Show.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        edtPS2Show.setEnabled(false);
         getContentPane().add(edtPS2Show);
-        edtPS2Show.setBounds(370, 210, 60, 30);
+        edtPS2Show.setBounds(370, 240, 60, 30);
         getContentPane().add(edtPS2Edit);
-        edtPS2Edit.setBounds(440, 210, 60, 30);
+        edtPS2Edit.setBounds(440, 240, 60, 30);
 
         btnPS2Set.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
         btnPS2Set.setText("set");
+        btnPS2Set.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnPS2SetActionPerformed(evt);
+            }
+        });
         getContentPane().add(btnPS2Set);
-        btnPS2Set.setBounds(510, 210, 60, 30);
+        btnPS2Set.setBounds(510, 240, 60, 30);
 
         btnPS3Get.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
         btnPS3Get.setText("req");
+        btnPS3Get.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnPS3GetActionPerformed(evt);
+            }
+        });
         getContentPane().add(btnPS3Get);
-        btnPS3Get.setBounds(300, 240, 60, 30);
+        btnPS3Get.setBounds(300, 270, 60, 30);
 
         edtPS3Show.setEditable(false);
         edtPS3Show.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        edtPS3Show.setEnabled(false);
         getContentPane().add(edtPS3Show);
-        edtPS3Show.setBounds(370, 240, 60, 30);
+        edtPS3Show.setBounds(370, 270, 60, 30);
         getContentPane().add(edtPS3Edit);
-        edtPS3Edit.setBounds(440, 240, 60, 30);
+        edtPS3Edit.setBounds(440, 270, 60, 30);
 
         btnPS3Set.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
         btnPS3Set.setText("set");
+        btnPS3Set.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnPS3SetActionPerformed(evt);
+            }
+        });
         getContentPane().add(btnPS3Set);
-        btnPS3Set.setBounds(510, 240, 60, 30);
+        btnPS3Set.setBounds(510, 270, 60, 30);
 
         btnPS4Get.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
         btnPS4Get.setText("req");
+        btnPS4Get.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnPS4GetActionPerformed(evt);
+            }
+        });
         getContentPane().add(btnPS4Get);
-        btnPS4Get.setBounds(300, 270, 60, 30);
+        btnPS4Get.setBounds(300, 300, 60, 30);
 
         edtPS4Show.setEditable(false);
         edtPS4Show.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        edtPS4Show.setEnabled(false);
         getContentPane().add(edtPS4Show);
-        edtPS4Show.setBounds(370, 270, 60, 30);
+        edtPS4Show.setBounds(370, 300, 60, 30);
         getContentPane().add(edtPS4Edit);
-        edtPS4Edit.setBounds(440, 270, 60, 30);
+        edtPS4Edit.setBounds(440, 300, 60, 30);
 
         btnPS4Set.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
         btnPS4Set.setText("set");
+        btnPS4Set.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnPS4SetActionPerformed(evt);
+            }
+        });
         getContentPane().add(btnPS4Set);
-        btnPS4Set.setBounds(510, 270, 60, 30);
+        btnPS4Set.setBounds(510, 300, 60, 30);
 
         btnPS5Get.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
         btnPS5Get.setText("req");
+        btnPS5Get.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnPS5GetActionPerformed(evt);
+            }
+        });
         getContentPane().add(btnPS5Get);
-        btnPS5Get.setBounds(300, 300, 60, 30);
+        btnPS5Get.setBounds(300, 330, 60, 30);
 
         edtPS5Show.setEditable(false);
         edtPS5Show.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        edtPS5Show.setEnabled(false);
         getContentPane().add(edtPS5Show);
-        edtPS5Show.setBounds(370, 300, 60, 30);
+        edtPS5Show.setBounds(370, 330, 60, 30);
         getContentPane().add(edtPS5Edit);
-        edtPS5Edit.setBounds(440, 300, 60, 30);
+        edtPS5Edit.setBounds(440, 330, 60, 30);
 
         btnPS5Set.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
         btnPS5Set.setText("set");
+        btnPS5Set.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnPS5SetActionPerformed(evt);
+            }
+        });
         getContentPane().add(btnPS5Set);
-        btnPS5Set.setBounds(510, 300, 60, 30);
+        btnPS5Set.setBounds(510, 330, 60, 30);
 
         btnPS6Get.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
         btnPS6Get.setText("req");
+        btnPS6Get.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnPS6GetActionPerformed(evt);
+            }
+        });
         getContentPane().add(btnPS6Get);
-        btnPS6Get.setBounds(300, 330, 60, 30);
+        btnPS6Get.setBounds(300, 360, 60, 30);
 
         edtPS6Show.setEditable(false);
         edtPS6Show.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        edtPS6Show.setEnabled(false);
         getContentPane().add(edtPS6Show);
-        edtPS6Show.setBounds(370, 330, 60, 30);
+        edtPS6Show.setBounds(370, 360, 60, 30);
         getContentPane().add(edtPS6Edit);
-        edtPS6Edit.setBounds(440, 330, 60, 30);
+        edtPS6Edit.setBounds(440, 360, 60, 30);
 
         btnPS6Set.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
         btnPS6Set.setText("set");
+        btnPS6Set.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnPS6SetActionPerformed(evt);
+            }
+        });
         getContentPane().add(btnPS6Set);
-        btnPS6Set.setBounds(510, 330, 60, 30);
+        btnPS6Set.setBounds(510, 360, 60, 30);
 
         btnPS7Get.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
         btnPS7Get.setText("req");
+        btnPS7Get.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnPS7GetActionPerformed(evt);
+            }
+        });
         getContentPane().add(btnPS7Get);
-        btnPS7Get.setBounds(300, 360, 60, 30);
+        btnPS7Get.setBounds(300, 390, 60, 30);
 
         edtPS7Show.setEditable(false);
         edtPS7Show.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        edtPS7Show.setEnabled(false);
         getContentPane().add(edtPS7Show);
-        edtPS7Show.setBounds(370, 360, 60, 30);
+        edtPS7Show.setBounds(370, 390, 60, 30);
         getContentPane().add(edtPS7Edit);
-        edtPS7Edit.setBounds(440, 360, 60, 30);
+        edtPS7Edit.setBounds(440, 390, 60, 30);
 
         btnPS7Set.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
         btnPS7Set.setText("set");
+        btnPS7Set.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnPS7SetActionPerformed(evt);
+            }
+        });
         getContentPane().add(btnPS7Set);
-        btnPS7Set.setBounds(510, 360, 60, 30);
+        btnPS7Set.setBounds(510, 390, 60, 30);
 
         btnPS8Get.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
         btnPS8Get.setText("req");
+        btnPS8Get.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnPS8GetActionPerformed(evt);
+            }
+        });
         getContentPane().add(btnPS8Get);
-        btnPS8Get.setBounds(300, 390, 60, 30);
+        btnPS8Get.setBounds(300, 420, 60, 30);
 
         edtPS8Show.setEditable(false);
         edtPS8Show.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        edtPS8Show.setEnabled(false);
         getContentPane().add(edtPS8Show);
-        edtPS8Show.setBounds(370, 390, 60, 30);
+        edtPS8Show.setBounds(370, 420, 60, 30);
         getContentPane().add(edtPS8Edit);
-        edtPS8Edit.setBounds(440, 390, 60, 30);
+        edtPS8Edit.setBounds(440, 420, 60, 30);
 
         btnPS8Set.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
         btnPS8Set.setText("set");
+        btnPS8Set.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnPS8SetActionPerformed(evt);
+            }
+        });
         getContentPane().add(btnPS8Set);
-        btnPS8Set.setBounds(510, 390, 60, 30);
+        btnPS8Set.setBounds(510, 420, 60, 30);
 
         btnPS9Get.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
         btnPS9Get.setText("req");
+        btnPS9Get.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnPS9GetActionPerformed(evt);
+            }
+        });
         getContentPane().add(btnPS9Get);
-        btnPS9Get.setBounds(300, 420, 60, 30);
+        btnPS9Get.setBounds(300, 450, 60, 30);
 
         edtPS9Show.setEditable(false);
         edtPS9Show.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        edtPS9Show.setEnabled(false);
         getContentPane().add(edtPS9Show);
-        edtPS9Show.setBounds(370, 420, 60, 30);
+        edtPS9Show.setBounds(370, 450, 60, 30);
         getContentPane().add(edtPS9Edit);
-        edtPS9Edit.setBounds(440, 420, 60, 30);
+        edtPS9Edit.setBounds(440, 450, 60, 30);
 
         btnPS9Set.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
         btnPS9Set.setText("set");
+        btnPS9Set.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnPS9SetActionPerformed(evt);
+            }
+        });
         getContentPane().add(btnPS9Set);
-        btnPS9Set.setBounds(510, 420, 60, 30);
+        btnPS9Set.setBounds(510, 450, 60, 30);
 
         btnPS10Get.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
         btnPS10Get.setText("req");
+        btnPS10Get.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnPS10GetActionPerformed(evt);
+            }
+        });
         getContentPane().add(btnPS10Get);
-        btnPS10Get.setBounds(300, 450, 60, 30);
+        btnPS10Get.setBounds(300, 480, 60, 30);
 
         edtPS10Show.setEditable(false);
         edtPS10Show.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        edtPS10Show.setEnabled(false);
         getContentPane().add(edtPS10Show);
-        edtPS10Show.setBounds(370, 450, 60, 30);
+        edtPS10Show.setBounds(370, 480, 60, 30);
         getContentPane().add(edtPS10Edit);
-        edtPS10Edit.setBounds(440, 450, 60, 30);
+        edtPS10Edit.setBounds(440, 480, 60, 30);
 
         btnPS10Set.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
         btnPS10Set.setText("set");
+        btnPS10Set.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnPS10SetActionPerformed(evt);
+            }
+        });
         getContentPane().add(btnPS10Set);
-        btnPS10Set.setBounds(510, 450, 60, 30);
+        btnPS10Set.setBounds(510, 480, 60, 30);
 
         btnPS11Get.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
         btnPS11Get.setText("req");
+        btnPS11Get.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnPS11GetActionPerformed(evt);
+            }
+        });
         getContentPane().add(btnPS11Get);
-        btnPS11Get.setBounds(300, 480, 60, 30);
+        btnPS11Get.setBounds(300, 510, 60, 30);
 
         edtPS11Show.setEditable(false);
         edtPS11Show.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        edtPS11Show.setEnabled(false);
         getContentPane().add(edtPS11Show);
-        edtPS11Show.setBounds(370, 480, 60, 30);
+        edtPS11Show.setBounds(370, 510, 60, 30);
         getContentPane().add(edtPS11Edit);
-        edtPS11Edit.setBounds(440, 480, 60, 30);
+        edtPS11Edit.setBounds(440, 510, 60, 30);
 
         btnPS11Set.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
         btnPS11Set.setText("set");
+        btnPS11Set.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnPS11SetActionPerformed(evt);
+            }
+        });
         getContentPane().add(btnPS11Set);
-        btnPS11Set.setBounds(510, 480, 60, 30);
+        btnPS11Set.setBounds(510, 510, 60, 30);
 
-        jLabel1.setText("Использование калибровки: ???");
-        getContentPane().add(jLabel1);
-        jLabel1.setBounds(20, 90, 280, 30);
+        lblPhaseShiftUsageTitle.setText("Использование калибровки: ");
+        getContentPane().add(lblPhaseShiftUsageTitle);
+        lblPhaseShiftUsageTitle.setBounds(20, 90, 210, 30);
 
         btnDontUseIt.setText("Выключить");
         btnDontUseIt.addActionListener(new java.awt.event.ActionListener() {
@@ -814,14 +1053,14 @@ public class SLG_PSST_MainFrame extends javax.swing.JFrame {
         getContentPane().add(btnUseIt);
         btnUseIt.setBounds(300, 90, 130, 30);
 
-        btnResetCalibData.setText("Сбросить данные");
+        btnResetCalibData.setText("Сбросить данные калибровки");
         btnResetCalibData.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnResetCalibDataActionPerformed(evt);
             }
         });
         getContentPane().add(btnResetCalibData);
-        btnResetCalibData.setBounds(20, 520, 550, 30);
+        btnResetCalibData.setBounds(20, 550, 550, 30);
 
         btnDisconnect.setText("Разъединить");
         btnDisconnect.addActionListener(new java.awt.event.ActionListener() {
@@ -833,9 +1072,34 @@ public class SLG_PSST_MainFrame extends javax.swing.JFrame {
         btnDisconnect.setBounds(440, 10, 130, 30);
 
         lblConnectionStateValue.setText("jLabel2");
-        lblConnectionStateValue.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        lblConnectionStateValue.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
         getContentPane().add(lblConnectionStateValue);
         lblConnectionStateValue.setBounds(150, 50, 420, 30);
+
+        lblPhaseShiftUsageValue.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        lblPhaseShiftUsageValue.setText("???");
+        lblPhaseShiftUsageValue.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+        getContentPane().add(lblPhaseShiftUsageValue);
+        lblPhaseShiftUsageValue.setBounds(230, 90, 60, 30);
+
+        btnSaveData.setText("Сохранить данные калибровки в память МК");
+        btnSaveData.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnSaveDataActionPerformed(evt);
+            }
+        });
+        getContentPane().add(btnSaveData);
+        btnSaveData.setBounds(20, 590, 550, 30);
+
+        lblCurrentPhaseShiftTitle.setText("Текущее (последнее выставленное) значение фазового сдвига: ");
+        getContentPane().add(lblCurrentPhaseShiftTitle);
+        lblCurrentPhaseShiftTitle.setBounds(20, 130, 470, 30);
+
+        lblCurrentPhaseShiftValue.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        lblCurrentPhaseShiftValue.setText("???");
+        lblCurrentPhaseShiftValue.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+        getContentPane().add(lblCurrentPhaseShiftValue);
+        lblCurrentPhaseShiftValue.setBounds(490, 130, 60, 30);
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -881,27 +1145,53 @@ public class SLG_PSST_MainFrame extends javax.swing.JFrame {
         catch( SerialPortException ex) {
             logger.error( "COM-Communication exception", ex);
             theApp.m_bConnected = false;
-            SLG_PSST_App.MessageBoxError( "При попытке соединения получили исключительную ситуацию:\n\n" + ex.toString(), "SLG_APST");
+            SLG_PSST_App.MessageBoxError( "При попытке соединения получили исключительную ситуацию:\n\n" + ex.toString(), "SLG_PSST");
             return;
         }
         
         theApp.m_strVersion = "";
         theApp.m_bConnected = true;
+        theApp.m_nPhShUsage = SLG_PSST_App.PHASE_SHIFT_USAGE_UNKNOWN;
+        theApp.m_bParamsChanged = false;
+        theApp.m_nCurrentPhaseShift = 0xFF;
     }//GEN-LAST:event_btnConnectActionPerformed
 
     private void btnResetCalibDataActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnResetCalibDataActionPerformed
+        byte aBytes[] = new byte[4];
+        aBytes[0] = SLG_ConstantsCmd.SLG_MC_COMMAND_ACT_RESET_PHSH_CALIB;
+        aBytes[1] = 0;
+        aBytes[2] = 0;
+        aBytes[3] = 0;
         
+        try {
+            serialPort.writeBytes( aBytes);
+            theApp.m_bParamsChanged = true;
+            logger.debug( ">> RESET PH_SH CALIB");
+            logger.debug( String.format( ">> 0x%02x 0x%02x 0x%02x 0x%02x", aBytes[0], aBytes[1], aBytes[2], aBytes[3]));
+        } catch (SerialPortException ex) {
+            logger.error( "COM-Communication exception", ex);
+            theApp.m_bConnected = false;
+            SLG_PSST_App.MessageBoxError( "При попытке записи в порт получили исключительную ситуацию:\n\n" + ex.toString(), "SLG_PSST");
+        }
     }//GEN-LAST:event_btnResetCalibDataActionPerformed
 
     private void btnUseItActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnUseItActionPerformed
-        // TODO add your handling code here:
+        SendComandSetParam( ( byte ) SLG_ConstantsParams.SLG_PARAM_PH_SH_USAGE, ( byte) 0, ( byte) 0);
+        theApp.m_bParamsChanged = true;
     }//GEN-LAST:event_btnUseItActionPerformed
 
     private void btnDontUseItActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDontUseItActionPerformed
-        
+        SendComandSetParam( ( byte ) SLG_ConstantsParams.SLG_PARAM_PH_SH_USAGE, ( byte) 0xFF, ( byte) 0);
+        theApp.m_bParamsChanged = true;
     }//GEN-LAST:event_btnDontUseItActionPerformed
 
     private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
+        
+        if( theApp.m_bParamsChanged == true && theApp.m_bConnected == true) {
+            int nRespond = SLG_PSST_App.MessageBoxYesNo( "Параметры были изменены, но не сохранены в память микроконтроллера!\nВыйти без сохранения?", "SLG_PSST");
+            if( nRespond == JOptionPane.NO_OPTION) return;
+        }
+        
         if( tRefreshStates != null) { tRefreshStates.stop(); tRefreshStates = null; }
         if( tRefreshValues != null) { tRefreshValues.stop(); tRefreshValues = null; }
         if( tPolling != null)       { tPolling.stop();       tPolling = null; }
@@ -933,6 +1223,12 @@ public class SLG_PSST_MainFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_formWindowClosing
 
     private void btnDisconnectActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDisconnectActionPerformed
+
+        if( theApp.m_bParamsChanged == true) {
+            int nRespond = SLG_PSST_App.MessageBoxYesNo( "Параметры были изменены, но не сохранены в память микроконтроллера!\nОтсоединиться без сохранения?", "SLG_PSST");
+            if( nRespond == JOptionPane.NO_OPTION) return;
+        }
+        
         theApp.m_bConnected = false;
         try {
             serialPort.removeEventListener();
@@ -954,6 +1250,557 @@ public class SLG_PSST_MainFrame extends javax.swing.JFrame {
         }
         */
     }//GEN-LAST:event_btnDisconnectActionPerformed
+
+    public void SendComandRequestParam( byte btParam, byte btParamIndex) {
+        byte aBytes[] = new byte[4];
+        aBytes[0] = SLG_ConstantsCmd.SLG_CMD_REQ;
+        aBytes[1] = btParam;
+        aBytes[2] = btParamIndex;
+        aBytes[3] = 0;
+        
+        try {
+            serialPort.writeBytes( aBytes);
+            logger.debug( ">> REQ PARAM_" + btParam + "." + btParamIndex);
+            logger.debug( String.format( ">> 0x%02x 0x%02x 0x%02x 0x%02x", aBytes[0], aBytes[1], aBytes[2], aBytes[3]));
+        } catch (SerialPortException ex) {
+            logger.error( "COM-Communication exception", ex);
+            theApp.m_bConnected = false;
+            SLG_PSST_App.MessageBoxError( "При попытке записи в порт получили исключительную ситуацию:\n\n" + ex.toString(), "SLG_PSST");
+        }
+    }
+    
+    public void SendComandSetParam( byte btParam, byte btParamIndex, byte btParamValue) {
+        byte aBytes[] = new byte[4];
+        aBytes[0] = SLG_ConstantsCmd.SLG_CMD_SET;
+        aBytes[1] = btParam;
+        aBytes[2] = btParamIndex;
+        aBytes[3] = btParamValue;
+        
+        try {
+            serialPort.writeBytes( aBytes);
+            logger.debug( ">> SET PARAM_" + btParam + "." + btParamIndex + "=" + btParamValue);
+            logger.debug( String.format( ">> 0x%02x 0x%02x 0x%02x 0x%02x", aBytes[0], aBytes[1], aBytes[2], aBytes[3]));
+        } catch (SerialPortException ex) {
+            logger.error( "COM-Communication exception", ex);
+            theApp.m_bConnected = false;
+            SLG_PSST_App.MessageBoxError( "При попытке записи в порт получили исключительную ситуацию:\n\n" + ex.toString(), "SLG_PSST");
+        }
+    }
+    
+    private void btnT1GetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnT1GetActionPerformed
+        SendComandRequestParam( ( byte )SLG_ConstantsParams.SLG_PARAM_PH_SH_CALIB_T, ( byte) 0);
+    }//GEN-LAST:event_btnT1GetActionPerformed
+
+    private void btnT2GetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnT2GetActionPerformed
+        SendComandRequestParam( ( byte )SLG_ConstantsParams.SLG_PARAM_PH_SH_CALIB_T, ( byte) 1);
+    }//GEN-LAST:event_btnT2GetActionPerformed
+
+    private void btnT3GetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnT3GetActionPerformed
+        SendComandRequestParam( ( byte )SLG_ConstantsParams.SLG_PARAM_PH_SH_CALIB_T, ( byte) 2);
+    }//GEN-LAST:event_btnT3GetActionPerformed
+
+    private void btnT4GetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnT4GetActionPerformed
+        SendComandRequestParam( ( byte )SLG_ConstantsParams.SLG_PARAM_PH_SH_CALIB_T, ( byte) 3);
+    }//GEN-LAST:event_btnT4GetActionPerformed
+
+    private void btnT5GetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnT5GetActionPerformed
+        SendComandRequestParam( ( byte )SLG_ConstantsParams.SLG_PARAM_PH_SH_CALIB_T, ( byte) 4);
+    }//GEN-LAST:event_btnT5GetActionPerformed
+
+    private void btnT6GetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnT6GetActionPerformed
+        SendComandRequestParam( ( byte )SLG_ConstantsParams.SLG_PARAM_PH_SH_CALIB_T, ( byte) 5);
+    }//GEN-LAST:event_btnT6GetActionPerformed
+
+    private void btnT7GetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnT7GetActionPerformed
+        SendComandRequestParam( ( byte )SLG_ConstantsParams.SLG_PARAM_PH_SH_CALIB_T, ( byte) 6);
+    }//GEN-LAST:event_btnT7GetActionPerformed
+
+    private void btnT8GetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnT8GetActionPerformed
+        SendComandRequestParam( ( byte )SLG_ConstantsParams.SLG_PARAM_PH_SH_CALIB_T, ( byte) 7);
+    }//GEN-LAST:event_btnT8GetActionPerformed
+
+    private void btnT9GetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnT9GetActionPerformed
+        SendComandRequestParam( ( byte )SLG_ConstantsParams.SLG_PARAM_PH_SH_CALIB_T, ( byte) 8);
+    }//GEN-LAST:event_btnT9GetActionPerformed
+
+    private void btnT10GetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnT10GetActionPerformed
+        SendComandRequestParam( ( byte )SLG_ConstantsParams.SLG_PARAM_PH_SH_CALIB_T, ( byte) 9);
+    }//GEN-LAST:event_btnT10GetActionPerformed
+
+    private void btnT11GetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnT11GetActionPerformed
+        SendComandRequestParam( ( byte )SLG_ConstantsParams.SLG_PARAM_PH_SH_CALIB_T, ( byte) 10);
+    }//GEN-LAST:event_btnT11GetActionPerformed
+
+    private void btnPS1GetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPS1GetActionPerformed
+        SendComandRequestParam( ( byte )SLG_ConstantsParams.SLG_PARAM_PH_SH_CALIB_PH_SH, ( byte) 0);
+    }//GEN-LAST:event_btnPS1GetActionPerformed
+
+    private void btnPS2GetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPS2GetActionPerformed
+        SendComandRequestParam( ( byte )SLG_ConstantsParams.SLG_PARAM_PH_SH_CALIB_PH_SH, ( byte) 1);
+    }//GEN-LAST:event_btnPS2GetActionPerformed
+
+    private void btnPS3GetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPS3GetActionPerformed
+        SendComandRequestParam( ( byte )SLG_ConstantsParams.SLG_PARAM_PH_SH_CALIB_PH_SH, ( byte) 2);
+    }//GEN-LAST:event_btnPS3GetActionPerformed
+
+    private void btnPS4GetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPS4GetActionPerformed
+        SendComandRequestParam( ( byte )SLG_ConstantsParams.SLG_PARAM_PH_SH_CALIB_PH_SH, ( byte) 3);
+    }//GEN-LAST:event_btnPS4GetActionPerformed
+
+    private void btnPS5GetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPS5GetActionPerformed
+        SendComandRequestParam( ( byte )SLG_ConstantsParams.SLG_PARAM_PH_SH_CALIB_PH_SH, ( byte) 4);
+    }//GEN-LAST:event_btnPS5GetActionPerformed
+
+    private void btnPS6GetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPS6GetActionPerformed
+        SendComandRequestParam( ( byte )SLG_ConstantsParams.SLG_PARAM_PH_SH_CALIB_PH_SH, ( byte) 5);
+    }//GEN-LAST:event_btnPS6GetActionPerformed
+
+    private void btnPS7GetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPS7GetActionPerformed
+        SendComandRequestParam( ( byte )SLG_ConstantsParams.SLG_PARAM_PH_SH_CALIB_PH_SH, ( byte) 6);
+    }//GEN-LAST:event_btnPS7GetActionPerformed
+
+    private void btnPS8GetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPS8GetActionPerformed
+        SendComandRequestParam( ( byte )SLG_ConstantsParams.SLG_PARAM_PH_SH_CALIB_PH_SH, ( byte) 7);
+    }//GEN-LAST:event_btnPS8GetActionPerformed
+
+    private void btnPS9GetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPS9GetActionPerformed
+        SendComandRequestParam( ( byte )SLG_ConstantsParams.SLG_PARAM_PH_SH_CALIB_PH_SH, ( byte) 8);
+    }//GEN-LAST:event_btnPS9GetActionPerformed
+
+    private void btnPS10GetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPS10GetActionPerformed
+        SendComandRequestParam( ( byte )SLG_ConstantsParams.SLG_PARAM_PH_SH_CALIB_PH_SH, ( byte) 9);
+    }//GEN-LAST:event_btnPS10GetActionPerformed
+
+    private void btnPS11GetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPS11GetActionPerformed
+        SendComandRequestParam( ( byte )SLG_ConstantsParams.SLG_PARAM_PH_SH_CALIB_PH_SH, ( byte) 10);
+    }//GEN-LAST:event_btnPS11GetActionPerformed
+
+    private void btnT1SetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnT1SetActionPerformed
+        try {
+            String strValue = edtT1Edit.getText();
+            Integer IntValue = Integer.parseInt( strValue);
+            if( IntValue >= -60 && IntValue <= +60) {
+                IntValue += 128;
+                byte btValue = IntValue.byteValue();
+                SendComandSetParam( ( byte ) SLG_ConstantsParams.SLG_PARAM_PH_SH_CALIB_T, ( byte) 0, btValue);
+                theApp.m_bParamsChanged = true;
+            }
+            else {
+                SLG_PSST_App.MessageBoxInfo( "Температура должна быть в диапазоне [-60;+60]", "SLG_PSST");
+            }
+        }
+        catch( NumberFormatException e) {
+            logger.error( "При обработке команды \"отправить температуру1\" возникла исключительная ситуация!", e);
+        }
+    }//GEN-LAST:event_btnT1SetActionPerformed
+
+    private void btnT2SetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnT2SetActionPerformed
+        try {
+            String strValue = edtT2Edit.getText();
+            Integer IntValue = Integer.parseInt( strValue);
+            if( IntValue >= -60 && IntValue <= +60) {
+                IntValue += 128;
+                byte btValue = IntValue.byteValue();
+                SendComandSetParam( ( byte ) SLG_ConstantsParams.SLG_PARAM_PH_SH_CALIB_T, ( byte) 1, btValue);
+                theApp.m_bParamsChanged = true;
+            }
+            else {
+                SLG_PSST_App.MessageBoxInfo( "Температура должна быть в диапазоне [-60;+60]", "SLG_PSST");
+            }
+        }
+        catch( NumberFormatException e) {
+            logger.error( "При обработке команды \"отправить температуру2\" возникла исключительная ситуация!", e);
+        }
+    }//GEN-LAST:event_btnT2SetActionPerformed
+
+    private void btnT3SetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnT3SetActionPerformed
+        try {
+            String strValue = edtT3Edit.getText();
+            Integer IntValue = Integer.parseInt( strValue);
+            if( IntValue >= -60 && IntValue <= +60) {
+                IntValue += 128;
+                byte btValue = IntValue.byteValue();
+                SendComandSetParam( ( byte ) SLG_ConstantsParams.SLG_PARAM_PH_SH_CALIB_T, ( byte) 2, btValue);
+                theApp.m_bParamsChanged = true;
+            }
+            else {
+                SLG_PSST_App.MessageBoxInfo( "Температура должна быть в диапазоне [-60;+60]", "SLG_PSST");
+            }
+        }
+        catch( NumberFormatException e) {
+            logger.error( "При обработке команды \"отправить температуру3\" возникла исключительная ситуация!", e);
+        }
+    }//GEN-LAST:event_btnT3SetActionPerformed
+
+    private void btnT4SetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnT4SetActionPerformed
+        try {
+            String strValue = edtT4Edit.getText();
+            Integer IntValue = Integer.parseInt( strValue);
+            if( IntValue >= -60 && IntValue <= +60) {
+                IntValue += 128;
+                byte btValue = IntValue.byteValue();
+                SendComandSetParam( ( byte ) SLG_ConstantsParams.SLG_PARAM_PH_SH_CALIB_T, ( byte) 3, btValue);
+                theApp.m_bParamsChanged = true;
+            }
+            else {
+                SLG_PSST_App.MessageBoxInfo( "Температура должна быть в диапазоне [-60;+60]", "SLG_PSST");
+            }
+        }
+        catch( NumberFormatException e) {
+            logger.error( "При обработке команды \"отправить температуру4\" возникла исключительная ситуация!", e);
+        }
+    }//GEN-LAST:event_btnT4SetActionPerformed
+
+    private void btnT5SetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnT5SetActionPerformed
+        try {
+            String strValue = edtT5Edit.getText();
+            Integer IntValue = Integer.parseInt( strValue);
+            if( IntValue >= -60 && IntValue <= +60) {
+                IntValue += 128;
+                byte btValue = IntValue.byteValue();
+                SendComandSetParam( ( byte ) SLG_ConstantsParams.SLG_PARAM_PH_SH_CALIB_T, ( byte) 4, btValue);
+                theApp.m_bParamsChanged = true;
+            }
+            else {
+                SLG_PSST_App.MessageBoxInfo( "Температура должна быть в диапазоне [-60;+60]", "SLG_PSST");
+            }
+
+        }
+        catch( NumberFormatException e) {
+            logger.error( "При обработке команды \"отправить температуру5\" возникла исключительная ситуация!", e);
+        }
+    }//GEN-LAST:event_btnT5SetActionPerformed
+
+    private void btnT6SetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnT6SetActionPerformed
+        try {
+            String strValue = edtT6Edit.getText();
+            Integer IntValue = Integer.parseInt( strValue);
+            if( IntValue >= -60 && IntValue <= +60) {
+                IntValue += 128;
+                byte btValue = IntValue.byteValue();
+                SendComandSetParam( ( byte ) SLG_ConstantsParams.SLG_PARAM_PH_SH_CALIB_T, ( byte) 5, btValue);
+                theApp.m_bParamsChanged = true;
+            }
+            else {
+                SLG_PSST_App.MessageBoxInfo( "Температура должна быть в диапазоне [-60;+60]", "SLG_PSST");
+            }
+        }
+        catch( NumberFormatException e) {
+            logger.error( "При обработке команды \"отправить температуру6\" возникла исключительная ситуация!", e);
+        }
+    }//GEN-LAST:event_btnT6SetActionPerformed
+
+    private void btnT7SetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnT7SetActionPerformed
+        try {
+            String strValue = edtT7Edit.getText();
+            Integer IntValue = Integer.parseInt( strValue);
+            if( IntValue >= -60 && IntValue <= +60) {
+                IntValue += 128;
+                byte btValue = IntValue.byteValue();
+                SendComandSetParam( ( byte ) SLG_ConstantsParams.SLG_PARAM_PH_SH_CALIB_T, ( byte) 6, btValue);
+                theApp.m_bParamsChanged = true;
+            }
+            else {
+                SLG_PSST_App.MessageBoxInfo( "Температура должна быть в диапазоне [-60;+60]", "SLG_PSST");
+            }
+        }
+        catch( NumberFormatException e) {
+            logger.error( "При обработке команды \"отправить температуру7\" возникла исключительная ситуация!", e);
+        }
+    }//GEN-LAST:event_btnT7SetActionPerformed
+
+    private void btnT8SetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnT8SetActionPerformed
+        try {
+            String strValue = edtT8Edit.getText();
+            Integer IntValue = Integer.parseInt( strValue);
+            if( IntValue >= -60 && IntValue <= +60) {
+                IntValue += 128;
+                byte btValue = IntValue.byteValue();
+                SendComandSetParam( ( byte ) SLG_ConstantsParams.SLG_PARAM_PH_SH_CALIB_T, ( byte) 7, btValue);
+                theApp.m_bParamsChanged = true;
+            }
+            else {
+                SLG_PSST_App.MessageBoxInfo( "Температура должна быть в диапазоне [-60;+60]", "SLG_PSST");
+            }
+        }
+        catch( NumberFormatException e) {
+            logger.error( "При обработке команды \"отправить температуру8\" возникла исключительная ситуация!", e);
+        }
+    }//GEN-LAST:event_btnT8SetActionPerformed
+
+    private void btnT9SetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnT9SetActionPerformed
+        try {
+            String strValue = edtT9Edit.getText();
+            Integer IntValue = Integer.parseInt( strValue);
+            if( IntValue >= -60 && IntValue <= +60) {
+                IntValue += 128;
+                byte btValue = IntValue.byteValue();
+                SendComandSetParam( ( byte ) SLG_ConstantsParams.SLG_PARAM_PH_SH_CALIB_T, ( byte) 8, btValue);
+                theApp.m_bParamsChanged = true;
+            }
+            else {
+                SLG_PSST_App.MessageBoxInfo( "Температура должна быть в диапазоне [-60;+60]", "SLG_PSST");
+            }
+        }
+        catch( NumberFormatException e) {
+            logger.error( "При обработке команды \"отправить температуру9\" возникла исключительная ситуация!", e);
+        }
+    }//GEN-LAST:event_btnT9SetActionPerformed
+
+    private void btnT10SetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnT10SetActionPerformed
+        try {
+            String strValue = edtT10Edit.getText();
+            Integer IntValue = Integer.parseInt( strValue);
+            if( IntValue >= -60 && IntValue <= +60) {
+                IntValue += 128;
+                byte btValue = IntValue.byteValue();
+                SendComandSetParam( ( byte ) SLG_ConstantsParams.SLG_PARAM_PH_SH_CALIB_T, ( byte) 9, btValue);
+                theApp.m_bParamsChanged = true;
+            }
+            else {
+                SLG_PSST_App.MessageBoxInfo( "Температура должна быть в диапазоне [-60;+60]", "SLG_PSST");
+            }
+        }
+        catch( NumberFormatException e) {
+            logger.error( "При обработке команды \"отправить температуру10\" возникла исключительная ситуация!", e);
+        }
+    }//GEN-LAST:event_btnT10SetActionPerformed
+
+    private void btnT11SetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnT11SetActionPerformed
+        try {
+            String strValue = edtT11Edit.getText();
+            Integer IntValue = Integer.parseInt( strValue);
+            if( IntValue >= -60 && IntValue <= +60) {
+                IntValue += 128;
+                byte btValue = IntValue.byteValue();
+                SendComandSetParam( ( byte ) SLG_ConstantsParams.SLG_PARAM_PH_SH_CALIB_T, ( byte) 10, btValue);
+                theApp.m_bParamsChanged = true;
+            }
+            else {
+                SLG_PSST_App.MessageBoxInfo( "Температура должна быть в диапазоне [-60;+60]", "SLG_PSST");
+            }
+        }
+        catch( NumberFormatException e) {
+            logger.error( "При обработке команды \"отправить температуру11\" возникла исключительная ситуация!", e);
+        }
+    }//GEN-LAST:event_btnT11SetActionPerformed
+
+    private void btnPS1SetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPS1SetActionPerformed
+        try {
+            String strValue = edtPS1Edit.getText();
+            Integer IntValue = Integer.parseInt( strValue);
+            if( IntValue >= 0 && IntValue <= 254) {
+                byte btValue = IntValue.byteValue();
+                SendComandSetParam( ( byte ) SLG_ConstantsParams.SLG_PARAM_PH_SH_CALIB_PH_SH, ( byte) 0, btValue);
+                theApp.m_bParamsChanged = true;
+            }
+            else {
+                SLG_PSST_App.MessageBoxInfo( "Значение фазового сдвига должно быть в диапазоне [0;254]", "SLG_PSST");
+            }
+        }
+        catch( NumberFormatException e) {
+            logger.error( "При обработке команды \"отправить ФазСдвиг1\" возникла исключительная ситуация!", e);
+        }
+    }//GEN-LAST:event_btnPS1SetActionPerformed
+
+    private void btnPS2SetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPS2SetActionPerformed
+        try {
+            String strValue = edtPS2Edit.getText();
+            Integer IntValue = Integer.parseInt( strValue);
+            if( IntValue >= 0 && IntValue <= 254) {
+                byte btValue = IntValue.byteValue();
+                SendComandSetParam( ( byte ) SLG_ConstantsParams.SLG_PARAM_PH_SH_CALIB_PH_SH, ( byte) 1, btValue);
+                theApp.m_bParamsChanged = true;
+            }
+            else {
+                SLG_PSST_App.MessageBoxInfo( "Значение фазового сдвига должно быть в диапазоне [0;254]", "SLG_PSST");
+            }
+        }
+        catch( NumberFormatException e) {
+            logger.error( "При обработке команды \"отправить ФазСдвиг2\" возникла исключительная ситуация!", e);
+        }
+    }//GEN-LAST:event_btnPS2SetActionPerformed
+
+    private void btnPS3SetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPS3SetActionPerformed
+        try {
+            String strValue = edtPS3Edit.getText();
+            Integer IntValue = Integer.parseInt( strValue);
+            if( IntValue >= 0 && IntValue <= 254) {
+                byte btValue = IntValue.byteValue();
+                SendComandSetParam( ( byte ) SLG_ConstantsParams.SLG_PARAM_PH_SH_CALIB_PH_SH, ( byte) 2, btValue);
+                theApp.m_bParamsChanged = true;
+            }
+            else {
+                SLG_PSST_App.MessageBoxInfo( "Значение фазового сдвига должно быть в диапазоне [0;254]", "SLG_PSST");
+            }
+        }
+        catch( NumberFormatException e) {
+            logger.error( "При обработке команды \"отправить ФазСдвиг3\" возникла исключительная ситуация!", e);
+        }
+    }//GEN-LAST:event_btnPS3SetActionPerformed
+
+    private void btnPS4SetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPS4SetActionPerformed
+        try {
+            String strValue = edtPS4Edit.getText();
+            Integer IntValue = Integer.parseInt( strValue);
+            if( IntValue >= 0 && IntValue <= 254) {
+                byte btValue = IntValue.byteValue();
+                SendComandSetParam( ( byte ) SLG_ConstantsParams.SLG_PARAM_PH_SH_CALIB_PH_SH, ( byte) 3, btValue);
+                theApp.m_bParamsChanged = true;
+            }
+            else {
+                SLG_PSST_App.MessageBoxInfo( "Значение фазового сдвига должно быть в диапазоне [0;254]", "SLG_PSST");
+            }
+        }
+        catch( NumberFormatException e) {
+            logger.error( "При обработке команды \"отправить ФазСдвиг4\" возникла исключительная ситуация!", e);
+        }
+    }//GEN-LAST:event_btnPS4SetActionPerformed
+
+    private void btnPS5SetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPS5SetActionPerformed
+        try {
+            String strValue = edtPS5Edit.getText();
+            Integer IntValue = Integer.parseInt( strValue);
+            if( IntValue >= 0 && IntValue <= 254) {
+                byte btValue = IntValue.byteValue();
+                SendComandSetParam( ( byte ) SLG_ConstantsParams.SLG_PARAM_PH_SH_CALIB_PH_SH, ( byte) 4, btValue);
+                theApp.m_bParamsChanged = true;
+            }
+            else {
+                SLG_PSST_App.MessageBoxInfo( "Значение фазового сдвига должно быть в диапазоне [0;254]", "SLG_PSST");
+            }
+        }
+        catch( NumberFormatException e) {
+            logger.error( "При обработке команды \"отправить ФазСдвиг5\" возникла исключительная ситуация!", e);
+        }
+    }//GEN-LAST:event_btnPS5SetActionPerformed
+
+    private void btnPS6SetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPS6SetActionPerformed
+        try {
+            String strValue = edtPS6Edit.getText();
+            Integer IntValue = Integer.parseInt( strValue);
+            if( IntValue >= 0 && IntValue <= 254) {
+                byte btValue = IntValue.byteValue();
+                SendComandSetParam( ( byte ) SLG_ConstantsParams.SLG_PARAM_PH_SH_CALIB_PH_SH, ( byte) 5, btValue);
+                theApp.m_bParamsChanged = true;
+            }
+            else {
+                SLG_PSST_App.MessageBoxInfo( "Значение фазового сдвига должно быть в диапазоне [0;254]", "SLG_PSST");
+            }
+        }
+        catch( NumberFormatException e) {
+            logger.error( "При обработке команды \"отправить ФазСдвиг6\" возникла исключительная ситуация!", e);
+        }
+    }//GEN-LAST:event_btnPS6SetActionPerformed
+
+    private void btnPS7SetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPS7SetActionPerformed
+        try {
+            String strValue = edtPS7Edit.getText();
+            Integer IntValue = Integer.parseInt( strValue);
+            if( IntValue >= 0 && IntValue <= 254) {
+                byte btValue = IntValue.byteValue();
+                SendComandSetParam( ( byte ) SLG_ConstantsParams.SLG_PARAM_PH_SH_CALIB_PH_SH, ( byte) 6, btValue);
+                theApp.m_bParamsChanged = true;
+            }
+            else {
+                SLG_PSST_App.MessageBoxInfo( "Значение фазового сдвига должно быть в диапазоне [0;254]", "SLG_PSST");
+            }
+        }
+        catch( NumberFormatException e) {
+            logger.error( "При обработке команды \"отправить ФазСдвиг7\" возникла исключительная ситуация!", e);
+        }
+    }//GEN-LAST:event_btnPS7SetActionPerformed
+
+    private void btnPS8SetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPS8SetActionPerformed
+        try {
+            String strValue = edtPS8Edit.getText();
+            Integer IntValue = Integer.parseInt( strValue);
+            if( IntValue >= 0 && IntValue <= 254) {
+                byte btValue = IntValue.byteValue();
+                SendComandSetParam( ( byte ) SLG_ConstantsParams.SLG_PARAM_PH_SH_CALIB_PH_SH, ( byte) 7, btValue);
+                theApp.m_bParamsChanged = true;
+            }
+            else {
+                SLG_PSST_App.MessageBoxInfo( "Значение фазового сдвига должно быть в диапазоне [0;254]", "SLG_PSST");
+            }
+        }
+        catch( NumberFormatException e) {
+            logger.error( "При обработке команды \"отправить ФазСдвиг8\" возникла исключительная ситуация!", e);
+        }
+    }//GEN-LAST:event_btnPS8SetActionPerformed
+
+    private void btnPS9SetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPS9SetActionPerformed
+        try {
+            String strValue = edtPS9Edit.getText();
+            Integer IntValue = Integer.parseInt( strValue);
+            if( IntValue >= 0 && IntValue <= 254) {
+                byte btValue = IntValue.byteValue();
+                SendComandSetParam( ( byte ) SLG_ConstantsParams.SLG_PARAM_PH_SH_CALIB_PH_SH, ( byte) 8, btValue);
+                theApp.m_bParamsChanged = true;
+            }
+            else {
+                SLG_PSST_App.MessageBoxInfo( "Значение фазового сдвига должно быть в диапазоне [0;254]", "SLG_PSST");
+            }
+        }
+        catch( NumberFormatException e) {
+            logger.error( "При обработке команды \"отправить ФазСдвиг9\" возникла исключительная ситуация!", e);
+        }
+    }//GEN-LAST:event_btnPS9SetActionPerformed
+
+    private void btnPS10SetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPS10SetActionPerformed
+        try {
+            String strValue = edtPS10Edit.getText();
+            Integer IntValue = Integer.parseInt( strValue);
+            if( IntValue >= 0 && IntValue <= 254) {
+                byte btValue = IntValue.byteValue();
+                SendComandSetParam( ( byte ) SLG_ConstantsParams.SLG_PARAM_PH_SH_CALIB_PH_SH, ( byte) 9, btValue);
+                theApp.m_bParamsChanged = true;
+            }
+            else {
+                SLG_PSST_App.MessageBoxInfo( "Значение фазового сдвига должно быть в диапазоне [0;254]", "SLG_PSST");
+            }
+        }
+        catch( NumberFormatException e) {
+            logger.error( "При обработке команды \"отправить ФазСдвиг10\" возникла исключительная ситуация!", e);
+        }
+    }//GEN-LAST:event_btnPS10SetActionPerformed
+
+    private void btnPS11SetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPS11SetActionPerformed
+        try {
+            String strValue = edtPS11Edit.getText();
+            Integer IntValue = Integer.parseInt( strValue);
+            if( IntValue >= 0 && IntValue <= 254) {
+                byte btValue = IntValue.byteValue();
+                SendComandSetParam( ( byte ) SLG_ConstantsParams.SLG_PARAM_PH_SH_CALIB_PH_SH, ( byte) 10, btValue);
+                theApp.m_bParamsChanged = true;
+            }
+            else {
+                SLG_PSST_App.MessageBoxInfo( "Значение фазового сдвига должно быть в диапазоне [0;254]", "SLG_PSST");
+            }
+        }
+        catch( NumberFormatException e) {
+            logger.error( "При обработке команды \"отправить ФазСдвиг11\" возникла исключительная ситуация!", e);
+        }
+    }//GEN-LAST:event_btnPS11SetActionPerformed
+
+    private void btnSaveDataActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSaveDataActionPerformed
+        byte aBytes[] = new byte[4];
+        aBytes[0] = SLG_ConstantsCmd.SLG_CMD_ACT_SAVE_FLASH_PARAM;
+        aBytes[1] = 3;
+        aBytes[2] = 0;
+        aBytes[3] = 0;
+        
+        try {
+            serialPort.writeBytes( aBytes);
+            theApp.m_bParamsChanged = false;
+            logger.debug( ">> RESET PH_SH CALIB");
+            logger.debug( String.format( ">> 0x%02x 0x%02x 0x%02x 0x%02x", aBytes[0], aBytes[1], aBytes[2], aBytes[3]));
+        } catch (SerialPortException ex) {
+            logger.error( "COM-Communication exception", ex);
+            theApp.m_bConnected = false;
+            SLG_PSST_App.MessageBoxError( "При попытке записи в порт получили исключительную ситуацию:\n\n" + ex.toString(), "SLG_PSST");
+        }
+    }//GEN-LAST:event_btnSaveDataActionPerformed
 
 
     private class PortReader implements SerialPortEventListener {
@@ -1009,6 +1856,7 @@ public class SLG_PSST_MainFrame extends javax.swing.JFrame {
     public javax.swing.JButton btnPS9Get;
     public javax.swing.JButton btnPS9Set;
     private javax.swing.JButton btnResetCalibData;
+    private javax.swing.JButton btnSaveData;
     public javax.swing.JButton btnT10Get;
     public javax.swing.JButton btnT10Set;
     public javax.swing.JButton btnT11Get;
@@ -1077,10 +1925,13 @@ public class SLG_PSST_MainFrame extends javax.swing.JFrame {
     private javax.swing.JTextField edtT8Show;
     private javax.swing.JTextField edtT9Edit;
     private javax.swing.JTextField edtT9Show;
-    private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel lblConnectionStateTitle;
     private javax.swing.JLabel lblConnectionStateValue;
+    private javax.swing.JLabel lblCurrentPhaseShiftTitle;
+    private javax.swing.JLabel lblCurrentPhaseShiftValue;
     private javax.swing.JLabel lblPhaseShift;
+    private javax.swing.JLabel lblPhaseShiftUsageTitle;
+    private javax.swing.JLabel lblPhaseShiftUsageValue;
     private javax.swing.JLabel lblPort;
     private javax.swing.JLabel lblTemperature;
     // End of variables declaration//GEN-END:variables

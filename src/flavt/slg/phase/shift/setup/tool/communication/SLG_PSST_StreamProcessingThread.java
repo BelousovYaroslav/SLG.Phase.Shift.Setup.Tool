@@ -91,26 +91,29 @@ public class SLG_PSST_StreamProcessingThread implements Runnable {
             
             //TODO: CHECKSUMM CHECK
             
-            logger.info(    String.format( "0x%02X", bts[4]));            
+            //logger.info(    String.format( "0x%02X", bts[4]));            
+            
             //ANALYZE ADD.PARAM DESCRIPTOR
             switch( bts[4]) {
                 case SLG_ConstantsParams.SLG_PARAM_VERSION:
-                    logger.info(    String.format( "%02X %02X %02X %02X   %02X   %02X %02X   %02X %02X   %02X   %02X   %02X",
+                    logger.info(    String.format( "<< SLG_PARAM_VERSION: %02X %02X %02X %02X   %02X   %02X %02X   %02X %02X   %02X   %02X   %02X",
                                         bts[0],  bts[1],  bts[2],  bts[3],
                                         bts[4],  bts[5],  bts[6],  bts[7],
                                         bts[8],  bts[9],  bts[10], bts[11]));
                     theApp.m_strVersion = String.format( "%d.%d.%d", ( bts[5] & 0xF0) >> 4, bts[5] & 0x0F, ( bts[6] & 0xF0) >> 4);
-                    logger.debug( "Получена версия ПО от прибора: " + theApp.m_strVersion);
+                    //logger.debug( "Получена версия ПО от прибора: " + theApp.m_strVersion);
                 break;
                     
                 case SLG_ConstantsParams.SLG_PARAM_PH_SH_CALIB_T:
-                    logger.info(    String.format( "%02X %02X %02X %02X   %02X   %02X %02X   %02X %02X   %02X   %02X   %02X",
+                    logger.info(    String.format( "<< SLG_PARAM_PH_SH_CALIB_T: %02X %02X %02X %02X   %02X   %02X %02X   %02X %02X   %02X   %02X   %02X",
                                         bts[0],  bts[1],  bts[2],  bts[3],
                                         bts[4],  bts[5],  bts[6],  bts[7],
                                         bts[8],  bts[9],  bts[10], bts[11]));
                     
                     if( bts[5] >= 0 && bts[5] < theApp.LIST_PARAMS_LEN) {
-                        theApp.m_DevT[ bts[5]] = bts[6] & 0xFF; //FUCK
+                        theApp.m_DevT[ bts[5]] = bts[6] & 0xFF;
+                        if( theApp.m_DevT[ bts[5]] != 0xFF)
+                            theApp.m_DevT[ bts[5]] -= 128;
                         theApp.m_bParamTDefined[ bts[5]] = true;
                     }
                     
@@ -142,13 +145,13 @@ public class SLG_PSST_StreamProcessingThread implements Runnable {
                 break;
                     
                 case SLG_ConstantsParams.SLG_PARAM_PH_SH_CALIB_PH_SH:
-                    logger.info(    String.format( "%02X %02X %02X %02X   %02X   %02X %02X   %02X %02X   %02X   %02X   %02X",
+                    logger.info(    String.format( "<< SLG_PARAM_PH_SH_CALIB_PH_SH: %02X %02X %02X %02X   %02X   %02X %02X   %02X %02X   %02X   %02X   %02X",
                                         bts[0],  bts[1],  bts[2],  bts[3],
                                         bts[4],  bts[5],  bts[6],  bts[7],
                                         bts[8],  bts[9],  bts[10], bts[11]));
                     
                     if( bts[5] >= 0 && bts[5] < theApp.LIST_PARAMS_LEN) {
-                        theApp.m_DevPhsh[ bts[5]] = bts[6] & 0xFF; //FUCK
+                        theApp.m_DevPhsh[ bts[5]] = bts[6] & 0xFF;
                         theApp.m_bParamPhshDefined[ bts[5]] = true;
                     }
                     
@@ -177,6 +180,24 @@ public class SLG_PSST_StreamProcessingThread implements Runnable {
                                 " " + theApp.m_bParamDefined[9] +
                                 " " + theApp.m_bParamDefined[10]);
                     */
+                break;
+                    
+                case SLG_ConstantsParams.SLG_PARAM_PH_SH_USAGE:
+                    logger.info(    String.format( "<< SLG_PARAM_PH_SH_USAGE: %02X %02X %02X %02X   %02X   %02X %02X   %02X %02X   %02X   %02X   %02X",
+                                        bts[0],  bts[1],  bts[2],  bts[3],
+                                        bts[4],  bts[5],  bts[6],  bts[7],
+                                        bts[8],  bts[9],  bts[10], bts[11]));
+                    
+                    if( bts[5] == 0x00) theApp.m_nPhShUsage = SLG_PSST_App.PHASE_SHIFT_USAGE_ON;
+                    else                theApp.m_nPhShUsage = SLG_PSST_App.PHASE_SHIFT_USAGE_OFF;
+                break;
+                    
+                case SLG_ConstantsParams.SLG_PARAM_PH_SH_CURRENT_VAL:
+                    logger.info(    String.format( "<< SLG_PARAM_PH_SH_CURRENT_VAL: %02X %02X %02X %02X   %02X   %02X %02X   %02X %02X   %02X   %02X   %02X",
+                                        bts[0],  bts[1],  bts[2],  bts[3],
+                                        bts[4],  bts[5],  bts[6],  bts[7],
+                                        bts[8],  bts[9],  bts[10], bts[11]));
+                    theApp.m_nCurrentPhaseShift = bts[5] & 0xFF;
                 break;
             }
             

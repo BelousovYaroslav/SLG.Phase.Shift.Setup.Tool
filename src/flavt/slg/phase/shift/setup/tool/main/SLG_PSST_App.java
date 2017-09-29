@@ -9,6 +9,7 @@ import flavt.slg.phase.shift.setup.tool.communication.SLG_PSST_CircleBuffer;
 import java.io.File;
 import java.net.ServerSocket;
 import javax.swing.JOptionPane;
+import javax.swing.UIManager;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 
@@ -41,6 +42,15 @@ public class SLG_PSST_App {
     
     public String m_strVersion;
             
+    public int m_nPhShUsage;
+    public static final int PHASE_SHIFT_USAGE_ON = 0;
+    public static final int PHASE_SHIFT_USAGE_OFF = 1;
+    public static final int PHASE_SHIFT_USAGE_UNKNOWN = 2;
+    
+    public int m_nCurrentPhaseShift;
+    
+    public boolean m_bParamsChanged;
+    
     public int m_nMarkerFails;
     public int m_nCounterFails;
     public int m_nCheckSummFails;
@@ -75,6 +85,8 @@ public class SLG_PSST_App {
         }
         
         m_bConnected = false;
+        m_strVersion = "";
+        m_nPhShUsage = PHASE_SHIFT_USAGE_UNKNOWN;
     }
     
     
@@ -158,5 +170,22 @@ public class SLG_PSST_App {
     public static void MessageBoxError( String strMessage, String strTitleBar)
     {
         JOptionPane.showMessageDialog( null, strMessage, strTitleBar, JOptionPane.ERROR_MESSAGE);
+    }
+    
+    /**
+     * Функция для опроса пользователя с ответом ДА - НЕТ
+     * @param strMessage сообщение
+     * @param strTitleBar заголовок
+     * @return JOptionPane.YES_OPTION<br>или<br>
+     * JOptionPane.NO_OPTION
+     */
+    public static int MessageBoxYesNo( String strMessage, String strTitleBar)
+    {
+        UIManager.put("OptionPane.noButtonText", "Нет");
+        UIManager.put("OptionPane.okButtonText", "Согласен");
+        UIManager.put("OptionPane.yesButtonText", "Да");
+        
+        int nReply = JOptionPane.showConfirmDialog( null, strMessage, strTitleBar, JOptionPane.YES_NO_OPTION);
+        return nReply;
     }
 }
