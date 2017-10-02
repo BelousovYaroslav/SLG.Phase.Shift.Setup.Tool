@@ -49,6 +49,8 @@ public class SLG_PSST_App {
     
     public int m_nCurrentPhaseShift;
     
+    public double m_dblTD1;
+    
     public boolean m_bParamsChanged;
     
     public int m_nMarkerFails;

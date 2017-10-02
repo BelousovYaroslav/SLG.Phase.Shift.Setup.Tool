@@ -199,6 +199,18 @@ public class SLG_PSST_StreamProcessingThread implements Runnable {
                                         bts[8],  bts[9],  bts[10], bts[11]));
                     theApp.m_nCurrentPhaseShift = bts[5] & 0xFF;
                 break;
+                    
+                case SLG_ConstantsParams.SLG_PARAM_UTD1:
+                    //logger.info(    String.format( "<< SLG_PARAM_UTD1: %02X %02X %02X %02X   %02X   %02X %02X   %02X %02X   %02X   %02X   %02X",
+                    //                    bts[0],  bts[1],  bts[2],  bts[3],
+                    //                    bts[4],  bts[5],  bts[6],  bts[7],
+                    //                    bts[8],  bts[9],  bts[10], bts[11]));
+                    
+                    int nB6 = bts[6] & 0xFF;
+                    int nB5 = bts[5] & 0xFF;
+                    int nRes = ( nB6 << 8) + nB5;
+                    theApp.m_dblTD1 =  ( ( double) nRes) / 65535. * 200. - 100.;
+                break;
             }
             
             theApp.m_nPacksCounter = bts[9] & 0xFF;
