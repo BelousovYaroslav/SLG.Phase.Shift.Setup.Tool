@@ -100,7 +100,7 @@ public class SLG_PSST_App {
         //главная переменная окружения
         String strSLGrootEnvVar = System.getenv( "SLG_ROOT");
         if( strSLGrootEnvVar == null) {
-            MessageBoxError( "Не задана переменная окружения SLG_ROOT!", "HVV_Poller");
+            MessageBoxError( "Не задана переменная окружения SLG_ROOT!", "SLG_PSST");
             return;
         }
         

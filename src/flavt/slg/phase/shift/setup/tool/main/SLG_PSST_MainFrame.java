@@ -1178,7 +1178,7 @@ public class SLG_PSST_MainFrame extends javax.swing.JFrame {
 
     private void btnResetCalibDataActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnResetCalibDataActionPerformed
         byte aBytes[] = new byte[4];
-        aBytes[0] = SLG_ConstantsCmd.SLG_MC_COMMAND_ACT_RESET_PHSH_CALIB;
+        aBytes[0] = SLG_ConstantsCmd.SLG_CMD_ACT_RESET_PHSH_CALIB;
         aBytes[1] = 0;
         aBytes[2] = 0;
         aBytes[3] = 0;
