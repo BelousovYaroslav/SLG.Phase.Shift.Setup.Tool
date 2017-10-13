@@ -188,8 +188,9 @@ public class SLG_PSST_StreamProcessingThread implements Runnable {
                                         bts[4],  bts[5],  bts[6],  bts[7],
                                         bts[8],  bts[9],  bts[10], bts[11]));
                     
-                    if( bts[5] == 0x00) theApp.m_nPhShUsage = SLG_PSST_App.PHASE_SHIFT_USAGE_ON;
-                    else                theApp.m_nPhShUsage = SLG_PSST_App.PHASE_SHIFT_USAGE_OFF;
+                         if( bts[5] == 0x00) theApp.m_nPhShUsage = SLG_PSST_App.PHASE_SHIFT_USAGE_CALIB;
+                    else if( bts[5] == 0x01) theApp.m_nPhShUsage = SLG_PSST_App.PHASE_SHIFT_USAGE_MANUAL;
+                    else                     theApp.m_nPhShUsage = SLG_PSST_App.PHASE_SHIFT_USAGE_OFF;
                 break;
                     
                 case SLG_ConstantsParams.SLG_PARAM_PH_SH_CURRENT_VAL:

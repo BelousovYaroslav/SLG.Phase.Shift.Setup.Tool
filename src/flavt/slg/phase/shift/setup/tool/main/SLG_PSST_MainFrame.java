@@ -93,8 +93,8 @@ public class SLG_PSST_MainFrame extends javax.swing.JFrame {
                 for( int i = 0; i < theApp.LIST_PARAMS_LEN; bAllDefined = bAllDefined & theApp.m_bParamTDefined[i] & theApp.m_bParamPhshDefined[i++]);
                 
                 
-                btnUseIt.setEnabled( theApp.m_bConnected && bAllDefined);
-                btnDontUseIt.setEnabled( theApp.m_bConnected && bAllDefined);
+                btnPhShRecalcCalib.setEnabled( theApp.m_bConnected && bAllDefined);
+                btnPhShRecalcManual.setEnabled( theApp.m_bConnected && bAllDefined);
                 btnResetCalibData.setEnabled( theApp.m_bConnected && bAllDefined);
                 btnSaveData.setEnabled( theApp.m_bConnected && bAllDefined);
                 
@@ -156,8 +156,10 @@ public class SLG_PSST_MainFrame extends javax.swing.JFrame {
                     
                 if( theApp.m_bConnected) {
                     switch( theApp.m_nPhShUsage) {
-                        case SLG_PSST_App.PHASE_SHIFT_USAGE_ON:
-                            lblPhaseShiftUsageValue.setText( "ВКЛ"); break;
+                        case SLG_PSST_App.PHASE_SHIFT_USAGE_CALIB:
+                            lblPhaseShiftUsageValue.setText( "Калибровка"); break;
+                        case SLG_PSST_App.PHASE_SHIFT_USAGE_MANUAL:
+                            lblPhaseShiftUsageValue.setText( "Ручной"); break;
                         case SLG_PSST_App.PHASE_SHIFT_USAGE_OFF:
                             lblPhaseShiftUsageValue.setText( "ВЫКЛ"); break;
                         case SLG_PSST_App.PHASE_SHIFT_USAGE_UNKNOWN:
@@ -265,8 +267,8 @@ public class SLG_PSST_MainFrame extends javax.swing.JFrame {
         lblConnectionStateValue = new javax.swing.JLabel();
         lblPhaseShiftUsageTitle = new javax.swing.JLabel();
         lblPhaseShiftUsageValue = new javax.swing.JLabel();
-        btnUseIt = new javax.swing.JButton();
-        btnDontUseIt = new javax.swing.JButton();
+        btnPhShRecalcCalib = new javax.swing.JButton();
+        btnPhShRecalcManual = new javax.swing.JButton();
         lblCurrentPhaseShiftTitle = new javax.swing.JLabel();
         btnCurrentPhaseShiftGet = new javax.swing.JButton();
         edtCurrentPhaseShiftValue = new javax.swing.JTextField();
@@ -366,6 +368,7 @@ public class SLG_PSST_MainFrame extends javax.swing.JFrame {
         btnPS11Set = new javax.swing.JButton();
         btnResetCalibData = new javax.swing.JButton();
         btnSaveData = new javax.swing.JButton();
+        btnPhShRecalcOff = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("МЛГ3Б. Утилита для редактирования калибровки фазового сдвига  (С) ФЛАВТ   2017.07.31 15:52");
@@ -412,37 +415,37 @@ public class SLG_PSST_MainFrame extends javax.swing.JFrame {
         getContentPane().add(lblConnectionStateValue);
         lblConnectionStateValue.setBounds(150, 50, 420, 30);
 
-        lblPhaseShiftUsageTitle.setText("Использование калибровки: ");
+        lblPhaseShiftUsageTitle.setText("Перевычисление фазового сдвига: ");
         getContentPane().add(lblPhaseShiftUsageTitle);
-        lblPhaseShiftUsageTitle.setBounds(20, 90, 210, 30);
+        lblPhaseShiftUsageTitle.setBounds(20, 90, 260, 30);
 
         lblPhaseShiftUsageValue.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         lblPhaseShiftUsageValue.setText("???");
         lblPhaseShiftUsageValue.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
         getContentPane().add(lblPhaseShiftUsageValue);
-        lblPhaseShiftUsageValue.setBounds(230, 90, 60, 30);
+        lblPhaseShiftUsageValue.setBounds(290, 90, 280, 30);
 
-        btnUseIt.setText("Включить");
-        btnUseIt.addActionListener(new java.awt.event.ActionListener() {
+        btnPhShRecalcCalib.setText("Калибровка");
+        btnPhShRecalcCalib.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnUseItActionPerformed(evt);
+                btnPhShRecalcCalibActionPerformed(evt);
             }
         });
-        getContentPane().add(btnUseIt);
-        btnUseIt.setBounds(300, 90, 130, 30);
+        getContentPane().add(btnPhShRecalcCalib);
+        btnPhShRecalcCalib.setBounds(160, 130, 130, 30);
 
-        btnDontUseIt.setText("Выключить");
-        btnDontUseIt.addActionListener(new java.awt.event.ActionListener() {
+        btnPhShRecalcManual.setText("Ручной");
+        btnPhShRecalcManual.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnDontUseItActionPerformed(evt);
+                btnPhShRecalcManualActionPerformed(evt);
             }
         });
-        getContentPane().add(btnDontUseIt);
-        btnDontUseIt.setBounds(440, 90, 130, 30);
+        getContentPane().add(btnPhShRecalcManual);
+        btnPhShRecalcManual.setBounds(300, 130, 130, 30);
 
         lblCurrentPhaseShiftTitle.setText("Текущее (последнее выставленное) значение фазового сдвига: ");
         getContentPane().add(lblCurrentPhaseShiftTitle);
-        lblCurrentPhaseShiftTitle.setBounds(20, 130, 470, 30);
+        lblCurrentPhaseShiftTitle.setBounds(20, 160, 470, 30);
 
         btnCurrentPhaseShiftGet.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
         btnCurrentPhaseShiftGet.setText("req");
@@ -452,17 +455,17 @@ public class SLG_PSST_MainFrame extends javax.swing.JFrame {
             }
         });
         getContentPane().add(btnCurrentPhaseShiftGet);
-        btnCurrentPhaseShiftGet.setBounds(300, 160, 60, 30);
+        btnCurrentPhaseShiftGet.setBounds(300, 190, 60, 30);
 
         edtCurrentPhaseShiftValue.setEditable(false);
         edtCurrentPhaseShiftValue.setHorizontalAlignment(javax.swing.JTextField.CENTER);
         edtCurrentPhaseShiftValue.setEnabled(false);
         getContentPane().add(edtCurrentPhaseShiftValue);
-        edtCurrentPhaseShiftValue.setBounds(370, 160, 60, 30);
+        edtCurrentPhaseShiftValue.setBounds(370, 190, 60, 30);
 
         edtCurrentPhaseShiftValueToSet.setHorizontalAlignment(javax.swing.JTextField.CENTER);
         getContentPane().add(edtCurrentPhaseShiftValueToSet);
-        edtCurrentPhaseShiftValueToSet.setBounds(440, 160, 60, 30);
+        edtCurrentPhaseShiftValueToSet.setBounds(440, 190, 60, 30);
 
         btnCurrentPhaseShiftSet.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
         btnCurrentPhaseShiftSet.setText("set");
@@ -472,22 +475,22 @@ public class SLG_PSST_MainFrame extends javax.swing.JFrame {
             }
         });
         getContentPane().add(btnCurrentPhaseShiftSet);
-        btnCurrentPhaseShiftSet.setBounds(510, 160, 60, 30);
+        btnCurrentPhaseShiftSet.setBounds(510, 190, 60, 30);
 
         lblCurrentTD1Title.setText("Текущая температура (TD1):");
         getContentPane().add(lblCurrentTD1Title);
-        lblCurrentTD1Title.setBounds(20, 210, 210, 30);
+        lblCurrentTD1Title.setBounds(20, 230, 210, 30);
 
         lblCurrentTD1Value.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         lblCurrentTD1Value.setText("???");
         lblCurrentTD1Value.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
         getContentPane().add(lblCurrentTD1Value);
-        lblCurrentTD1Value.setBounds(230, 210, 60, 30);
+        lblCurrentTD1Value.setBounds(230, 230, 60, 30);
 
         lblTemperature.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         lblTemperature.setText("<html><b><u>Температура</b></u></html>");
         getContentPane().add(lblTemperature);
-        lblTemperature.setBounds(20, 250, 270, 30);
+        lblTemperature.setBounds(20, 260, 270, 30);
 
         btnT1Get.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
         btnT1Get.setText("req");
@@ -822,7 +825,7 @@ public class SLG_PSST_MainFrame extends javax.swing.JFrame {
         lblPhaseShift.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         lblPhaseShift.setText("<html><b><u>Фазовый сдвиг</b></u></html>");
         getContentPane().add(lblPhaseShift);
-        lblPhaseShift.setBounds(300, 250, 270, 30);
+        lblPhaseShift.setBounds(300, 260, 270, 30);
 
         btnPS1Get.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
         btnPS1Get.setText("req");
@@ -1172,6 +1175,15 @@ public class SLG_PSST_MainFrame extends javax.swing.JFrame {
         getContentPane().add(btnSaveData);
         btnSaveData.setBounds(20, 670, 550, 30);
 
+        btnPhShRecalcOff.setText("Выключить");
+        btnPhShRecalcOff.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnPhShRecalcOffActionPerformed(evt);
+            }
+        });
+        getContentPane().add(btnPhShRecalcOff);
+        btnPhShRecalcOff.setBounds(440, 130, 130, 30);
+
         pack();
         setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
@@ -1248,15 +1260,15 @@ public class SLG_PSST_MainFrame extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_btnResetCalibDataActionPerformed
 
-    private void btnUseItActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnUseItActionPerformed
-        SendComandSetParam( ( byte ) SLG_ConstantsParams.SLG_PARAM_PH_SH_USAGE, ( byte) 0, ( byte) 0);
+    private void btnPhShRecalcCalibActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPhShRecalcCalibActionPerformed
+        SendComandSetParam( ( byte ) SLG_ConstantsParams.SLG_PARAM_PH_SH_USAGE, ( byte) 0x00, ( byte) 0);
         theApp.m_bParamsChanged = true;
-    }//GEN-LAST:event_btnUseItActionPerformed
+    }//GEN-LAST:event_btnPhShRecalcCalibActionPerformed
 
-    private void btnDontUseItActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDontUseItActionPerformed
-        SendComandSetParam( ( byte ) SLG_ConstantsParams.SLG_PARAM_PH_SH_USAGE, ( byte) 0xFF, ( byte) 0);
+    private void btnPhShRecalcManualActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPhShRecalcManualActionPerformed
+        SendComandSetParam( ( byte ) SLG_ConstantsParams.SLG_PARAM_PH_SH_USAGE, ( byte) 0x01, ( byte) 0);
         theApp.m_bParamsChanged = true;
-    }//GEN-LAST:event_btnDontUseItActionPerformed
+    }//GEN-LAST:event_btnPhShRecalcManualActionPerformed
 
     private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
         
@@ -1897,6 +1909,11 @@ public class SLG_PSST_MainFrame extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_btnCurrentPhaseShiftSetActionPerformed
 
+    private void btnPhShRecalcOffActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPhShRecalcOffActionPerformed
+        SendComandSetParam( ( byte ) SLG_ConstantsParams.SLG_PARAM_PH_SH_USAGE, ( byte) 0xFF, ( byte) 0);
+        theApp.m_bParamsChanged = true;
+    }//GEN-LAST:event_btnPhShRecalcOffActionPerformed
+
 
     private class PortReader implements SerialPortEventListener {
 
@@ -1929,7 +1946,6 @@ public class SLG_PSST_MainFrame extends javax.swing.JFrame {
     public javax.swing.JButton btnCurrentPhaseShiftGet;
     public javax.swing.JButton btnCurrentPhaseShiftSet;
     public javax.swing.JButton btnDisconnect;
-    private javax.swing.JButton btnDontUseIt;
     public javax.swing.JButton btnPS10Get;
     public javax.swing.JButton btnPS10Set;
     public javax.swing.JButton btnPS11Get;
@@ -1952,6 +1968,9 @@ public class SLG_PSST_MainFrame extends javax.swing.JFrame {
     public javax.swing.JButton btnPS8Set;
     public javax.swing.JButton btnPS9Get;
     public javax.swing.JButton btnPS9Set;
+    private javax.swing.JButton btnPhShRecalcCalib;
+    private javax.swing.JButton btnPhShRecalcManual;
+    private javax.swing.JButton btnPhShRecalcOff;
     private javax.swing.JButton btnResetCalibData;
     private javax.swing.JButton btnSaveData;
     public javax.swing.JButton btnT10Get;
@@ -1976,7 +1995,6 @@ public class SLG_PSST_MainFrame extends javax.swing.JFrame {
     public javax.swing.JButton btnT8Set;
     public javax.swing.JButton btnT9Get;
     public javax.swing.JButton btnT9Set;
-    private javax.swing.JButton btnUseIt;
     private javax.swing.JTextField edtComPortValue;
     private javax.swing.JTextField edtCurrentPhaseShiftValue;
     private javax.swing.JTextField edtCurrentPhaseShiftValueToSet;
