@@ -45,8 +45,7 @@ public class SLG_PSST_App {
     public int m_nPhShUsage;
     public static final int PHASE_SHIFT_USAGE_CALIB = 0;
     public static final int PHASE_SHIFT_USAGE_MANUAL = 1;
-    public static final int PHASE_SHIFT_USAGE_OFF = 2;
-    public static final int PHASE_SHIFT_USAGE_UNKNOWN = 3;
+    public static final int PHASE_SHIFT_USAGE_UNKNOWN = 2;
     
     public int m_nCurrentPhaseShift;
     

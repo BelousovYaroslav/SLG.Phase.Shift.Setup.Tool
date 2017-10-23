@@ -94,12 +94,12 @@ public class SLG_PSST_MainFrame extends javax.swing.JFrame {
                 
                 
                 btnPhShRecalcCalib.setEnabled( theApp.m_bConnected && bAllDefined);
-                btnPhShRecalcManual.setEnabled( theApp.m_bConnected && bAllDefined);
                 btnResetCalibData.setEnabled( theApp.m_bConnected && bAllDefined);
                 btnSaveData.setEnabled( theApp.m_bConnected && bAllDefined);
                 
                 btnCurrentPhaseShiftGet.setEnabled( theApp.m_bConnected && bAllDefined);
-                btnCurrentPhaseShiftSet.setEnabled( theApp.m_bConnected && bAllDefined);
+                btnCurrentPhaseShiftSetDec.setEnabled( theApp.m_bConnected && bAllDefined);
+                btnCurrentPhaseShiftSetHex.setEnabled( theApp.m_bConnected && bAllDefined);
                 
                 JButton btnsTGet[] = { btnT1Get, btnT2Get, btnT3Get, btnT4Get,
                                        btnT5Get, btnT6Get, btnT7Get, btnT8Get,
@@ -119,9 +119,9 @@ public class SLG_PSST_MainFrame extends javax.swing.JFrame {
                         
                 for( int i=0; i<11; i++) {
                     btnsTGet[i].setEnabled( theApp.m_bConnected && bAllDefined);
-                    btnsTSet[i].setEnabled( theApp.m_bConnected && bAllDefined && theApp.m_nPhShUsage == SLG_PSST_App.PHASE_SHIFT_USAGE_OFF);
+                    btnsTSet[i].setEnabled( theApp.m_bConnected && bAllDefined && theApp.m_nPhShUsage != SLG_PSST_App.PHASE_SHIFT_USAGE_CALIB);
                     btnsPhshGet[i].setEnabled( theApp.m_bConnected && bAllDefined);
-                    btnsPhshSet[i].setEnabled( theApp.m_bConnected && bAllDefined && theApp.m_nPhShUsage == SLG_PSST_App.PHASE_SHIFT_USAGE_OFF);
+                    btnsPhshSet[i].setEnabled( theApp.m_bConnected && bAllDefined && theApp.m_nPhShUsage != SLG_PSST_App.PHASE_SHIFT_USAGE_CALIB);
                 }
 
             }
@@ -160,8 +160,6 @@ public class SLG_PSST_MainFrame extends javax.swing.JFrame {
                             lblPhaseShiftUsageValue.setText( "Калибровка"); break;
                         case SLG_PSST_App.PHASE_SHIFT_USAGE_MANUAL:
                             lblPhaseShiftUsageValue.setText( "Ручной"); break;
-                        case SLG_PSST_App.PHASE_SHIFT_USAGE_OFF:
-                            lblPhaseShiftUsageValue.setText( "ВЫКЛ"); break;
                         case SLG_PSST_App.PHASE_SHIFT_USAGE_UNKNOWN:
                             lblPhaseShiftUsageValue.setText( "НЕИЗВ"); break;
                         default:
@@ -175,10 +173,12 @@ public class SLG_PSST_MainFrame extends javax.swing.JFrame {
                 }
                 
                 if( theApp.m_bConnected) {
-                    edtCurrentPhaseShiftValue.setText( String.format( "0x%02X", theApp.m_nCurrentPhaseShift));
+                    edtCurrentPhaseShiftHexValue.setText( String.format( "0x%02X", theApp.m_nCurrentPhaseShift));
+                    edtCurrentPhaseShiftDecValue.setText( String.format( "%d", theApp.m_nCurrentPhaseShift));
                 }
                 else {
-                    edtCurrentPhaseShiftValue.setText( "XXX");
+                    edtCurrentPhaseShiftHexValue.setText( "XXX");
+                    edtCurrentPhaseShiftDecValue.setText( "XXX");
                 }
                 
                 if( theApp.m_bConnected) {
@@ -268,12 +268,11 @@ public class SLG_PSST_MainFrame extends javax.swing.JFrame {
         lblPhaseShiftUsageTitle = new javax.swing.JLabel();
         lblPhaseShiftUsageValue = new javax.swing.JLabel();
         btnPhShRecalcCalib = new javax.swing.JButton();
-        btnPhShRecalcManual = new javax.swing.JButton();
         lblCurrentPhaseShiftTitle = new javax.swing.JLabel();
         btnCurrentPhaseShiftGet = new javax.swing.JButton();
-        edtCurrentPhaseShiftValue = new javax.swing.JTextField();
-        edtCurrentPhaseShiftValueToSet = new javax.swing.JTextField();
-        btnCurrentPhaseShiftSet = new javax.swing.JButton();
+        edtCurrentPhaseShiftHexValue = new javax.swing.JTextField();
+        edtCurrentPhaseShiftHexValueToSet = new javax.swing.JTextField();
+        btnCurrentPhaseShiftSetDec = new javax.swing.JButton();
         lblCurrentTD1Title = new javax.swing.JLabel();
         lblCurrentTD1Value = new javax.swing.JLabel();
         lblTemperature = new javax.swing.JLabel();
@@ -369,10 +368,15 @@ public class SLG_PSST_MainFrame extends javax.swing.JFrame {
         btnResetCalibData = new javax.swing.JButton();
         btnSaveData = new javax.swing.JButton();
         btnPhShRecalcOff = new javax.swing.JButton();
+        edtCurrentPhaseShiftDecValue = new javax.swing.JTextField();
+        edtCurrentPhaseShiftDecValueToSet = new javax.swing.JTextField();
+        btnCurrentPhaseShiftSetHex = new javax.swing.JButton();
+        jLabel1 = new javax.swing.JLabel();
+        jLabel2 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        setTitle("МЛГ3Б. Утилита для редактирования калибровки фазового сдвига  (С) ФЛАВТ   2017.07.31 15:52");
-        setMinimumSize(new java.awt.Dimension(580, 730));
+        setTitle("МЛГ3Б. Утилита для редактирования калибровки фазового сдвига  (С) ФЛАВТ   2017.10.23 14:30");
+        setMinimumSize(new java.awt.Dimension(580, 770));
         setResizable(false);
         addWindowListener(new java.awt.event.WindowAdapter() {
             public void windowClosing(java.awt.event.WindowEvent evt) {
@@ -432,16 +436,7 @@ public class SLG_PSST_MainFrame extends javax.swing.JFrame {
             }
         });
         getContentPane().add(btnPhShRecalcCalib);
-        btnPhShRecalcCalib.setBounds(160, 130, 130, 30);
-
-        btnPhShRecalcManual.setText("Ручной");
-        btnPhShRecalcManual.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnPhShRecalcManualActionPerformed(evt);
-            }
-        });
-        getContentPane().add(btnPhShRecalcManual);
-        btnPhShRecalcManual.setBounds(300, 130, 130, 30);
+        btnPhShRecalcCalib.setBounds(300, 130, 130, 30);
 
         lblCurrentPhaseShiftTitle.setText("Текущее (последнее выставленное) значение фазового сдвига: ");
         getContentPane().add(lblCurrentPhaseShiftTitle);
@@ -455,42 +450,47 @@ public class SLG_PSST_MainFrame extends javax.swing.JFrame {
             }
         });
         getContentPane().add(btnCurrentPhaseShiftGet);
-        btnCurrentPhaseShiftGet.setBounds(300, 190, 60, 30);
+        btnCurrentPhaseShiftGet.setBounds(250, 190, 60, 60);
 
-        edtCurrentPhaseShiftValue.setEditable(false);
-        edtCurrentPhaseShiftValue.setHorizontalAlignment(javax.swing.JTextField.CENTER);
-        edtCurrentPhaseShiftValue.setEnabled(false);
-        getContentPane().add(edtCurrentPhaseShiftValue);
-        edtCurrentPhaseShiftValue.setBounds(370, 190, 60, 30);
+        edtCurrentPhaseShiftHexValue.setEditable(false);
+        edtCurrentPhaseShiftHexValue.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        edtCurrentPhaseShiftHexValue.setEnabled(false);
+        getContentPane().add(edtCurrentPhaseShiftHexValue);
+        edtCurrentPhaseShiftHexValue.setBounds(370, 190, 60, 30);
 
-        edtCurrentPhaseShiftValueToSet.setHorizontalAlignment(javax.swing.JTextField.CENTER);
-        getContentPane().add(edtCurrentPhaseShiftValueToSet);
-        edtCurrentPhaseShiftValueToSet.setBounds(440, 190, 60, 30);
-
-        btnCurrentPhaseShiftSet.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
-        btnCurrentPhaseShiftSet.setText("set");
-        btnCurrentPhaseShiftSet.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnCurrentPhaseShiftSetActionPerformed(evt);
+        edtCurrentPhaseShiftHexValueToSet.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        edtCurrentPhaseShiftHexValueToSet.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusLost(java.awt.event.FocusEvent evt) {
+                edtCurrentPhaseShiftHexValueToSetFocusLost(evt);
             }
         });
-        getContentPane().add(btnCurrentPhaseShiftSet);
-        btnCurrentPhaseShiftSet.setBounds(510, 190, 60, 30);
+        getContentPane().add(edtCurrentPhaseShiftHexValueToSet);
+        edtCurrentPhaseShiftHexValueToSet.setBounds(440, 190, 60, 30);
+
+        btnCurrentPhaseShiftSetDec.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
+        btnCurrentPhaseShiftSetDec.setText("set");
+        btnCurrentPhaseShiftSetDec.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnCurrentPhaseShiftSetDecActionPerformed(evt);
+            }
+        });
+        getContentPane().add(btnCurrentPhaseShiftSetDec);
+        btnCurrentPhaseShiftSetDec.setBounds(510, 220, 60, 30);
 
         lblCurrentTD1Title.setText("Текущая температура (TD1):");
         getContentPane().add(lblCurrentTD1Title);
-        lblCurrentTD1Title.setBounds(20, 230, 210, 30);
+        lblCurrentTD1Title.setBounds(20, 270, 210, 30);
 
         lblCurrentTD1Value.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         lblCurrentTD1Value.setText("???");
         lblCurrentTD1Value.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
         getContentPane().add(lblCurrentTD1Value);
-        lblCurrentTD1Value.setBounds(230, 230, 60, 30);
+        lblCurrentTD1Value.setBounds(230, 270, 60, 30);
 
         lblTemperature.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         lblTemperature.setText("<html><b><u>Температура</b></u></html>");
         getContentPane().add(lblTemperature);
-        lblTemperature.setBounds(20, 260, 270, 30);
+        lblTemperature.setBounds(20, 300, 270, 30);
 
         btnT1Get.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
         btnT1Get.setText("req");
@@ -500,17 +500,17 @@ public class SLG_PSST_MainFrame extends javax.swing.JFrame {
             }
         });
         getContentPane().add(btnT1Get);
-        btnT1Get.setBounds(20, 290, 60, 30);
+        btnT1Get.setBounds(20, 330, 60, 30);
 
         edtT1Show.setEditable(false);
         edtT1Show.setHorizontalAlignment(javax.swing.JTextField.CENTER);
         edtT1Show.setEnabled(false);
         getContentPane().add(edtT1Show);
-        edtT1Show.setBounds(90, 290, 60, 30);
+        edtT1Show.setBounds(90, 330, 60, 30);
 
         edtT1Edit.setHorizontalAlignment(javax.swing.JTextField.CENTER);
         getContentPane().add(edtT1Edit);
-        edtT1Edit.setBounds(160, 290, 60, 30);
+        edtT1Edit.setBounds(160, 330, 60, 30);
 
         btnT1Set.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
         btnT1Set.setText("set");
@@ -520,7 +520,7 @@ public class SLG_PSST_MainFrame extends javax.swing.JFrame {
             }
         });
         getContentPane().add(btnT1Set);
-        btnT1Set.setBounds(230, 290, 60, 30);
+        btnT1Set.setBounds(230, 330, 60, 30);
 
         btnT2Get.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
         btnT2Get.setText("req");
@@ -530,17 +530,17 @@ public class SLG_PSST_MainFrame extends javax.swing.JFrame {
             }
         });
         getContentPane().add(btnT2Get);
-        btnT2Get.setBounds(20, 320, 60, 30);
+        btnT2Get.setBounds(20, 360, 60, 30);
 
         edtT2Show.setEditable(false);
         edtT2Show.setHorizontalAlignment(javax.swing.JTextField.CENTER);
         edtT2Show.setEnabled(false);
         getContentPane().add(edtT2Show);
-        edtT2Show.setBounds(90, 320, 60, 30);
+        edtT2Show.setBounds(90, 360, 60, 30);
 
         edtT2Edit.setHorizontalAlignment(javax.swing.JTextField.CENTER);
         getContentPane().add(edtT2Edit);
-        edtT2Edit.setBounds(160, 320, 60, 30);
+        edtT2Edit.setBounds(160, 360, 60, 30);
 
         btnT2Set.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
         btnT2Set.setText("set");
@@ -550,7 +550,7 @@ public class SLG_PSST_MainFrame extends javax.swing.JFrame {
             }
         });
         getContentPane().add(btnT2Set);
-        btnT2Set.setBounds(230, 320, 60, 30);
+        btnT2Set.setBounds(230, 360, 60, 30);
 
         btnT3Get.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
         btnT3Get.setText("req");
@@ -560,17 +560,17 @@ public class SLG_PSST_MainFrame extends javax.swing.JFrame {
             }
         });
         getContentPane().add(btnT3Get);
-        btnT3Get.setBounds(20, 350, 60, 30);
+        btnT3Get.setBounds(20, 390, 60, 30);
 
         edtT3Show.setEditable(false);
         edtT3Show.setHorizontalAlignment(javax.swing.JTextField.CENTER);
         edtT3Show.setEnabled(false);
         getContentPane().add(edtT3Show);
-        edtT3Show.setBounds(90, 350, 60, 30);
+        edtT3Show.setBounds(90, 390, 60, 30);
 
         edtT3Edit.setHorizontalAlignment(javax.swing.JTextField.CENTER);
         getContentPane().add(edtT3Edit);
-        edtT3Edit.setBounds(160, 350, 60, 30);
+        edtT3Edit.setBounds(160, 390, 60, 30);
 
         btnT3Set.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
         btnT3Set.setText("set");
@@ -580,7 +580,7 @@ public class SLG_PSST_MainFrame extends javax.swing.JFrame {
             }
         });
         getContentPane().add(btnT3Set);
-        btnT3Set.setBounds(230, 350, 60, 30);
+        btnT3Set.setBounds(230, 390, 60, 30);
 
         btnT4Get.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
         btnT4Get.setText("req");
@@ -590,17 +590,17 @@ public class SLG_PSST_MainFrame extends javax.swing.JFrame {
             }
         });
         getContentPane().add(btnT4Get);
-        btnT4Get.setBounds(20, 380, 60, 30);
+        btnT4Get.setBounds(20, 420, 60, 30);
 
         edtT4Show.setEditable(false);
         edtT4Show.setHorizontalAlignment(javax.swing.JTextField.CENTER);
         edtT4Show.setEnabled(false);
         getContentPane().add(edtT4Show);
-        edtT4Show.setBounds(90, 380, 60, 30);
+        edtT4Show.setBounds(90, 420, 60, 30);
 
         edtT4Edit.setHorizontalAlignment(javax.swing.JTextField.CENTER);
         getContentPane().add(edtT4Edit);
-        edtT4Edit.setBounds(160, 380, 60, 30);
+        edtT4Edit.setBounds(160, 420, 60, 30);
 
         btnT4Set.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
         btnT4Set.setText("set");
@@ -610,7 +610,7 @@ public class SLG_PSST_MainFrame extends javax.swing.JFrame {
             }
         });
         getContentPane().add(btnT4Set);
-        btnT4Set.setBounds(230, 380, 60, 30);
+        btnT4Set.setBounds(230, 420, 60, 30);
 
         btnT5Get.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
         btnT5Get.setText("req");
@@ -620,17 +620,17 @@ public class SLG_PSST_MainFrame extends javax.swing.JFrame {
             }
         });
         getContentPane().add(btnT5Get);
-        btnT5Get.setBounds(20, 410, 60, 30);
+        btnT5Get.setBounds(20, 450, 60, 30);
 
         edtT5Show.setEditable(false);
         edtT5Show.setHorizontalAlignment(javax.swing.JTextField.CENTER);
         edtT5Show.setEnabled(false);
         getContentPane().add(edtT5Show);
-        edtT5Show.setBounds(90, 410, 60, 30);
+        edtT5Show.setBounds(90, 450, 60, 30);
 
         edtT5Edit.setHorizontalAlignment(javax.swing.JTextField.CENTER);
         getContentPane().add(edtT5Edit);
-        edtT5Edit.setBounds(160, 410, 60, 30);
+        edtT5Edit.setBounds(160, 450, 60, 30);
 
         btnT5Set.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
         btnT5Set.setText("set");
@@ -640,7 +640,7 @@ public class SLG_PSST_MainFrame extends javax.swing.JFrame {
             }
         });
         getContentPane().add(btnT5Set);
-        btnT5Set.setBounds(230, 410, 60, 30);
+        btnT5Set.setBounds(230, 450, 60, 30);
 
         btnT6Get.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
         btnT6Get.setText("req");
@@ -650,17 +650,17 @@ public class SLG_PSST_MainFrame extends javax.swing.JFrame {
             }
         });
         getContentPane().add(btnT6Get);
-        btnT6Get.setBounds(20, 440, 60, 30);
+        btnT6Get.setBounds(20, 480, 60, 30);
 
         edtT6Show.setEditable(false);
         edtT6Show.setHorizontalAlignment(javax.swing.JTextField.CENTER);
         edtT6Show.setEnabled(false);
         getContentPane().add(edtT6Show);
-        edtT6Show.setBounds(90, 440, 60, 30);
+        edtT6Show.setBounds(90, 480, 60, 30);
 
         edtT6Edit.setHorizontalAlignment(javax.swing.JTextField.CENTER);
         getContentPane().add(edtT6Edit);
-        edtT6Edit.setBounds(160, 440, 60, 30);
+        edtT6Edit.setBounds(160, 480, 60, 30);
 
         btnT6Set.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
         btnT6Set.setText("set");
@@ -670,7 +670,7 @@ public class SLG_PSST_MainFrame extends javax.swing.JFrame {
             }
         });
         getContentPane().add(btnT6Set);
-        btnT6Set.setBounds(230, 440, 60, 30);
+        btnT6Set.setBounds(230, 480, 60, 30);
 
         btnT7Get.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
         btnT7Get.setText("req");
@@ -680,17 +680,17 @@ public class SLG_PSST_MainFrame extends javax.swing.JFrame {
             }
         });
         getContentPane().add(btnT7Get);
-        btnT7Get.setBounds(20, 470, 60, 30);
+        btnT7Get.setBounds(20, 510, 60, 30);
 
         edtT7Show.setEditable(false);
         edtT7Show.setHorizontalAlignment(javax.swing.JTextField.CENTER);
         edtT7Show.setEnabled(false);
         getContentPane().add(edtT7Show);
-        edtT7Show.setBounds(90, 470, 60, 30);
+        edtT7Show.setBounds(90, 510, 60, 30);
 
         edtT7Edit.setHorizontalAlignment(javax.swing.JTextField.CENTER);
         getContentPane().add(edtT7Edit);
-        edtT7Edit.setBounds(160, 470, 60, 30);
+        edtT7Edit.setBounds(160, 510, 60, 30);
 
         btnT7Set.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
         btnT7Set.setText("set");
@@ -700,7 +700,7 @@ public class SLG_PSST_MainFrame extends javax.swing.JFrame {
             }
         });
         getContentPane().add(btnT7Set);
-        btnT7Set.setBounds(230, 470, 60, 30);
+        btnT7Set.setBounds(230, 510, 60, 30);
 
         btnT8Get.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
         btnT8Get.setText("req");
@@ -710,17 +710,17 @@ public class SLG_PSST_MainFrame extends javax.swing.JFrame {
             }
         });
         getContentPane().add(btnT8Get);
-        btnT8Get.setBounds(20, 500, 60, 30);
+        btnT8Get.setBounds(20, 540, 60, 30);
 
         edtT8Show.setEditable(false);
         edtT8Show.setHorizontalAlignment(javax.swing.JTextField.CENTER);
         edtT8Show.setEnabled(false);
         getContentPane().add(edtT8Show);
-        edtT8Show.setBounds(90, 500, 60, 30);
+        edtT8Show.setBounds(90, 540, 60, 30);
 
         edtT8Edit.setHorizontalAlignment(javax.swing.JTextField.CENTER);
         getContentPane().add(edtT8Edit);
-        edtT8Edit.setBounds(160, 500, 60, 30);
+        edtT8Edit.setBounds(160, 540, 60, 30);
 
         btnT8Set.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
         btnT8Set.setText("set");
@@ -730,7 +730,7 @@ public class SLG_PSST_MainFrame extends javax.swing.JFrame {
             }
         });
         getContentPane().add(btnT8Set);
-        btnT8Set.setBounds(230, 500, 60, 30);
+        btnT8Set.setBounds(230, 540, 60, 30);
 
         btnT9Get.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
         btnT9Get.setText("req");
@@ -740,17 +740,17 @@ public class SLG_PSST_MainFrame extends javax.swing.JFrame {
             }
         });
         getContentPane().add(btnT9Get);
-        btnT9Get.setBounds(20, 530, 60, 30);
+        btnT9Get.setBounds(20, 570, 60, 30);
 
         edtT9Show.setEditable(false);
         edtT9Show.setHorizontalAlignment(javax.swing.JTextField.CENTER);
         edtT9Show.setEnabled(false);
         getContentPane().add(edtT9Show);
-        edtT9Show.setBounds(90, 530, 60, 30);
+        edtT9Show.setBounds(90, 570, 60, 30);
 
         edtT9Edit.setHorizontalAlignment(javax.swing.JTextField.CENTER);
         getContentPane().add(edtT9Edit);
-        edtT9Edit.setBounds(160, 530, 60, 30);
+        edtT9Edit.setBounds(160, 570, 60, 30);
 
         btnT9Set.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
         btnT9Set.setText("set");
@@ -760,7 +760,7 @@ public class SLG_PSST_MainFrame extends javax.swing.JFrame {
             }
         });
         getContentPane().add(btnT9Set);
-        btnT9Set.setBounds(230, 530, 60, 30);
+        btnT9Set.setBounds(230, 570, 60, 30);
 
         btnT10Get.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
         btnT10Get.setText("req");
@@ -770,17 +770,17 @@ public class SLG_PSST_MainFrame extends javax.swing.JFrame {
             }
         });
         getContentPane().add(btnT10Get);
-        btnT10Get.setBounds(20, 560, 60, 30);
+        btnT10Get.setBounds(20, 600, 60, 30);
 
         edtT10Show.setEditable(false);
         edtT10Show.setHorizontalAlignment(javax.swing.JTextField.CENTER);
         edtT10Show.setEnabled(false);
         getContentPane().add(edtT10Show);
-        edtT10Show.setBounds(90, 560, 60, 30);
+        edtT10Show.setBounds(90, 600, 60, 30);
 
         edtT10Edit.setHorizontalAlignment(javax.swing.JTextField.CENTER);
         getContentPane().add(edtT10Edit);
-        edtT10Edit.setBounds(160, 560, 60, 30);
+        edtT10Edit.setBounds(160, 600, 60, 30);
 
         btnT10Set.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
         btnT10Set.setText("set");
@@ -790,7 +790,7 @@ public class SLG_PSST_MainFrame extends javax.swing.JFrame {
             }
         });
         getContentPane().add(btnT10Set);
-        btnT10Set.setBounds(230, 560, 60, 30);
+        btnT10Set.setBounds(230, 600, 60, 30);
 
         btnT11Get.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
         btnT11Get.setText("req");
@@ -800,17 +800,17 @@ public class SLG_PSST_MainFrame extends javax.swing.JFrame {
             }
         });
         getContentPane().add(btnT11Get);
-        btnT11Get.setBounds(20, 590, 60, 30);
+        btnT11Get.setBounds(20, 630, 60, 30);
 
         edtT11Show.setEditable(false);
         edtT11Show.setHorizontalAlignment(javax.swing.JTextField.CENTER);
         edtT11Show.setEnabled(false);
         getContentPane().add(edtT11Show);
-        edtT11Show.setBounds(90, 590, 60, 30);
+        edtT11Show.setBounds(90, 630, 60, 30);
 
         edtT11Edit.setHorizontalAlignment(javax.swing.JTextField.CENTER);
         getContentPane().add(edtT11Edit);
-        edtT11Edit.setBounds(160, 590, 60, 30);
+        edtT11Edit.setBounds(160, 630, 60, 30);
 
         btnT11Set.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
         btnT11Set.setText("set");
@@ -820,12 +820,12 @@ public class SLG_PSST_MainFrame extends javax.swing.JFrame {
             }
         });
         getContentPane().add(btnT11Set);
-        btnT11Set.setBounds(230, 590, 60, 30);
+        btnT11Set.setBounds(230, 630, 60, 30);
 
         lblPhaseShift.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         lblPhaseShift.setText("<html><b><u>Фазовый сдвиг</b></u></html>");
         getContentPane().add(lblPhaseShift);
-        lblPhaseShift.setBounds(300, 260, 270, 30);
+        lblPhaseShift.setBounds(300, 300, 270, 30);
 
         btnPS1Get.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
         btnPS1Get.setText("req");
@@ -835,17 +835,17 @@ public class SLG_PSST_MainFrame extends javax.swing.JFrame {
             }
         });
         getContentPane().add(btnPS1Get);
-        btnPS1Get.setBounds(300, 290, 60, 30);
+        btnPS1Get.setBounds(300, 330, 60, 30);
 
         edtPS1Show.setEditable(false);
         edtPS1Show.setHorizontalAlignment(javax.swing.JTextField.CENTER);
         edtPS1Show.setEnabled(false);
         getContentPane().add(edtPS1Show);
-        edtPS1Show.setBounds(370, 290, 60, 30);
+        edtPS1Show.setBounds(370, 330, 60, 30);
 
         edtPS1Edit.setHorizontalAlignment(javax.swing.JTextField.CENTER);
         getContentPane().add(edtPS1Edit);
-        edtPS1Edit.setBounds(440, 290, 60, 30);
+        edtPS1Edit.setBounds(440, 330, 60, 30);
 
         btnPS1Set.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
         btnPS1Set.setText("set");
@@ -855,7 +855,7 @@ public class SLG_PSST_MainFrame extends javax.swing.JFrame {
             }
         });
         getContentPane().add(btnPS1Set);
-        btnPS1Set.setBounds(510, 290, 60, 30);
+        btnPS1Set.setBounds(510, 330, 60, 30);
 
         btnPS2Get.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
         btnPS2Get.setText("req");
@@ -865,17 +865,17 @@ public class SLG_PSST_MainFrame extends javax.swing.JFrame {
             }
         });
         getContentPane().add(btnPS2Get);
-        btnPS2Get.setBounds(300, 320, 60, 30);
+        btnPS2Get.setBounds(300, 360, 60, 30);
 
         edtPS2Show.setEditable(false);
         edtPS2Show.setHorizontalAlignment(javax.swing.JTextField.CENTER);
         edtPS2Show.setEnabled(false);
         getContentPane().add(edtPS2Show);
-        edtPS2Show.setBounds(370, 320, 60, 30);
+        edtPS2Show.setBounds(370, 360, 60, 30);
 
         edtPS2Edit.setHorizontalAlignment(javax.swing.JTextField.CENTER);
         getContentPane().add(edtPS2Edit);
-        edtPS2Edit.setBounds(440, 320, 60, 30);
+        edtPS2Edit.setBounds(440, 360, 60, 30);
 
         btnPS2Set.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
         btnPS2Set.setText("set");
@@ -885,7 +885,7 @@ public class SLG_PSST_MainFrame extends javax.swing.JFrame {
             }
         });
         getContentPane().add(btnPS2Set);
-        btnPS2Set.setBounds(510, 320, 60, 30);
+        btnPS2Set.setBounds(510, 360, 60, 30);
 
         btnPS3Get.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
         btnPS3Get.setText("req");
@@ -895,17 +895,17 @@ public class SLG_PSST_MainFrame extends javax.swing.JFrame {
             }
         });
         getContentPane().add(btnPS3Get);
-        btnPS3Get.setBounds(300, 350, 60, 30);
+        btnPS3Get.setBounds(300, 390, 60, 30);
 
         edtPS3Show.setEditable(false);
         edtPS3Show.setHorizontalAlignment(javax.swing.JTextField.CENTER);
         edtPS3Show.setEnabled(false);
         getContentPane().add(edtPS3Show);
-        edtPS3Show.setBounds(370, 350, 60, 30);
+        edtPS3Show.setBounds(370, 390, 60, 30);
 
         edtPS3Edit.setHorizontalAlignment(javax.swing.JTextField.CENTER);
         getContentPane().add(edtPS3Edit);
-        edtPS3Edit.setBounds(440, 350, 60, 30);
+        edtPS3Edit.setBounds(440, 390, 60, 30);
 
         btnPS3Set.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
         btnPS3Set.setText("set");
@@ -915,7 +915,7 @@ public class SLG_PSST_MainFrame extends javax.swing.JFrame {
             }
         });
         getContentPane().add(btnPS3Set);
-        btnPS3Set.setBounds(510, 350, 60, 30);
+        btnPS3Set.setBounds(510, 390, 60, 30);
 
         btnPS4Get.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
         btnPS4Get.setText("req");
@@ -925,17 +925,17 @@ public class SLG_PSST_MainFrame extends javax.swing.JFrame {
             }
         });
         getContentPane().add(btnPS4Get);
-        btnPS4Get.setBounds(300, 380, 60, 30);
+        btnPS4Get.setBounds(300, 420, 60, 30);
 
         edtPS4Show.setEditable(false);
         edtPS4Show.setHorizontalAlignment(javax.swing.JTextField.CENTER);
         edtPS4Show.setEnabled(false);
         getContentPane().add(edtPS4Show);
-        edtPS4Show.setBounds(370, 380, 60, 30);
+        edtPS4Show.setBounds(370, 420, 60, 30);
 
         edtPS4Edit.setHorizontalAlignment(javax.swing.JTextField.CENTER);
         getContentPane().add(edtPS4Edit);
-        edtPS4Edit.setBounds(440, 380, 60, 30);
+        edtPS4Edit.setBounds(440, 420, 60, 30);
 
         btnPS4Set.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
         btnPS4Set.setText("set");
@@ -945,7 +945,7 @@ public class SLG_PSST_MainFrame extends javax.swing.JFrame {
             }
         });
         getContentPane().add(btnPS4Set);
-        btnPS4Set.setBounds(510, 380, 60, 30);
+        btnPS4Set.setBounds(510, 420, 60, 30);
 
         btnPS5Get.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
         btnPS5Get.setText("req");
@@ -955,17 +955,17 @@ public class SLG_PSST_MainFrame extends javax.swing.JFrame {
             }
         });
         getContentPane().add(btnPS5Get);
-        btnPS5Get.setBounds(300, 410, 60, 30);
+        btnPS5Get.setBounds(300, 450, 60, 30);
 
         edtPS5Show.setEditable(false);
         edtPS5Show.setHorizontalAlignment(javax.swing.JTextField.CENTER);
         edtPS5Show.setEnabled(false);
         getContentPane().add(edtPS5Show);
-        edtPS5Show.setBounds(370, 410, 60, 30);
+        edtPS5Show.setBounds(370, 450, 60, 30);
 
         edtPS5Edit.setHorizontalAlignment(javax.swing.JTextField.CENTER);
         getContentPane().add(edtPS5Edit);
-        edtPS5Edit.setBounds(440, 410, 60, 30);
+        edtPS5Edit.setBounds(440, 450, 60, 30);
 
         btnPS5Set.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
         btnPS5Set.setText("set");
@@ -975,7 +975,7 @@ public class SLG_PSST_MainFrame extends javax.swing.JFrame {
             }
         });
         getContentPane().add(btnPS5Set);
-        btnPS5Set.setBounds(510, 410, 60, 30);
+        btnPS5Set.setBounds(510, 450, 60, 30);
 
         btnPS6Get.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
         btnPS6Get.setText("req");
@@ -985,17 +985,17 @@ public class SLG_PSST_MainFrame extends javax.swing.JFrame {
             }
         });
         getContentPane().add(btnPS6Get);
-        btnPS6Get.setBounds(300, 440, 60, 30);
+        btnPS6Get.setBounds(300, 480, 60, 30);
 
         edtPS6Show.setEditable(false);
         edtPS6Show.setHorizontalAlignment(javax.swing.JTextField.CENTER);
         edtPS6Show.setEnabled(false);
         getContentPane().add(edtPS6Show);
-        edtPS6Show.setBounds(370, 440, 60, 30);
+        edtPS6Show.setBounds(370, 480, 60, 30);
 
         edtPS6Edit.setHorizontalAlignment(javax.swing.JTextField.CENTER);
         getContentPane().add(edtPS6Edit);
-        edtPS6Edit.setBounds(440, 440, 60, 30);
+        edtPS6Edit.setBounds(440, 480, 60, 30);
 
         btnPS6Set.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
         btnPS6Set.setText("set");
@@ -1005,7 +1005,7 @@ public class SLG_PSST_MainFrame extends javax.swing.JFrame {
             }
         });
         getContentPane().add(btnPS6Set);
-        btnPS6Set.setBounds(510, 440, 60, 30);
+        btnPS6Set.setBounds(510, 480, 60, 30);
 
         btnPS7Get.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
         btnPS7Get.setText("req");
@@ -1015,17 +1015,17 @@ public class SLG_PSST_MainFrame extends javax.swing.JFrame {
             }
         });
         getContentPane().add(btnPS7Get);
-        btnPS7Get.setBounds(300, 470, 60, 30);
+        btnPS7Get.setBounds(300, 510, 60, 30);
 
         edtPS7Show.setEditable(false);
         edtPS7Show.setHorizontalAlignment(javax.swing.JTextField.CENTER);
         edtPS7Show.setEnabled(false);
         getContentPane().add(edtPS7Show);
-        edtPS7Show.setBounds(370, 470, 60, 30);
+        edtPS7Show.setBounds(370, 510, 60, 30);
 
         edtPS7Edit.setHorizontalAlignment(javax.swing.JTextField.CENTER);
         getContentPane().add(edtPS7Edit);
-        edtPS7Edit.setBounds(440, 470, 60, 30);
+        edtPS7Edit.setBounds(440, 510, 60, 30);
 
         btnPS7Set.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
         btnPS7Set.setText("set");
@@ -1035,7 +1035,7 @@ public class SLG_PSST_MainFrame extends javax.swing.JFrame {
             }
         });
         getContentPane().add(btnPS7Set);
-        btnPS7Set.setBounds(510, 470, 60, 30);
+        btnPS7Set.setBounds(510, 510, 60, 30);
 
         btnPS8Get.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
         btnPS8Get.setText("req");
@@ -1045,17 +1045,17 @@ public class SLG_PSST_MainFrame extends javax.swing.JFrame {
             }
         });
         getContentPane().add(btnPS8Get);
-        btnPS8Get.setBounds(300, 500, 60, 30);
+        btnPS8Get.setBounds(300, 540, 60, 30);
 
         edtPS8Show.setEditable(false);
         edtPS8Show.setHorizontalAlignment(javax.swing.JTextField.CENTER);
         edtPS8Show.setEnabled(false);
         getContentPane().add(edtPS8Show);
-        edtPS8Show.setBounds(370, 500, 60, 30);
+        edtPS8Show.setBounds(370, 540, 60, 30);
 
         edtPS8Edit.setHorizontalAlignment(javax.swing.JTextField.CENTER);
         getContentPane().add(edtPS8Edit);
-        edtPS8Edit.setBounds(440, 500, 60, 30);
+        edtPS8Edit.setBounds(440, 540, 60, 30);
 
         btnPS8Set.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
         btnPS8Set.setText("set");
@@ -1065,7 +1065,7 @@ public class SLG_PSST_MainFrame extends javax.swing.JFrame {
             }
         });
         getContentPane().add(btnPS8Set);
-        btnPS8Set.setBounds(510, 500, 60, 30);
+        btnPS8Set.setBounds(510, 540, 60, 30);
 
         btnPS9Get.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
         btnPS9Get.setText("req");
@@ -1075,17 +1075,17 @@ public class SLG_PSST_MainFrame extends javax.swing.JFrame {
             }
         });
         getContentPane().add(btnPS9Get);
-        btnPS9Get.setBounds(300, 530, 60, 30);
+        btnPS9Get.setBounds(300, 570, 60, 30);
 
         edtPS9Show.setEditable(false);
         edtPS9Show.setHorizontalAlignment(javax.swing.JTextField.CENTER);
         edtPS9Show.setEnabled(false);
         getContentPane().add(edtPS9Show);
-        edtPS9Show.setBounds(370, 530, 60, 30);
+        edtPS9Show.setBounds(370, 570, 60, 30);
 
         edtPS9Edit.setHorizontalAlignment(javax.swing.JTextField.CENTER);
         getContentPane().add(edtPS9Edit);
-        edtPS9Edit.setBounds(440, 530, 60, 30);
+        edtPS9Edit.setBounds(440, 570, 60, 30);
 
         btnPS9Set.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
         btnPS9Set.setText("set");
@@ -1095,7 +1095,7 @@ public class SLG_PSST_MainFrame extends javax.swing.JFrame {
             }
         });
         getContentPane().add(btnPS9Set);
-        btnPS9Set.setBounds(510, 530, 60, 30);
+        btnPS9Set.setBounds(510, 570, 60, 30);
 
         btnPS10Get.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
         btnPS10Get.setText("req");
@@ -1105,17 +1105,17 @@ public class SLG_PSST_MainFrame extends javax.swing.JFrame {
             }
         });
         getContentPane().add(btnPS10Get);
-        btnPS10Get.setBounds(300, 560, 60, 30);
+        btnPS10Get.setBounds(300, 600, 60, 30);
 
         edtPS10Show.setEditable(false);
         edtPS10Show.setHorizontalAlignment(javax.swing.JTextField.CENTER);
         edtPS10Show.setEnabled(false);
         getContentPane().add(edtPS10Show);
-        edtPS10Show.setBounds(370, 560, 60, 30);
+        edtPS10Show.setBounds(370, 600, 60, 30);
 
         edtPS10Edit.setHorizontalAlignment(javax.swing.JTextField.CENTER);
         getContentPane().add(edtPS10Edit);
-        edtPS10Edit.setBounds(440, 560, 60, 30);
+        edtPS10Edit.setBounds(440, 600, 60, 30);
 
         btnPS10Set.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
         btnPS10Set.setText("set");
@@ -1125,7 +1125,7 @@ public class SLG_PSST_MainFrame extends javax.swing.JFrame {
             }
         });
         getContentPane().add(btnPS10Set);
-        btnPS10Set.setBounds(510, 560, 60, 30);
+        btnPS10Set.setBounds(510, 600, 60, 30);
 
         btnPS11Get.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
         btnPS11Get.setText("req");
@@ -1135,17 +1135,17 @@ public class SLG_PSST_MainFrame extends javax.swing.JFrame {
             }
         });
         getContentPane().add(btnPS11Get);
-        btnPS11Get.setBounds(300, 590, 60, 30);
+        btnPS11Get.setBounds(300, 630, 60, 30);
 
         edtPS11Show.setEditable(false);
         edtPS11Show.setHorizontalAlignment(javax.swing.JTextField.CENTER);
         edtPS11Show.setEnabled(false);
         getContentPane().add(edtPS11Show);
-        edtPS11Show.setBounds(370, 590, 60, 30);
+        edtPS11Show.setBounds(370, 630, 60, 30);
 
         edtPS11Edit.setHorizontalAlignment(javax.swing.JTextField.CENTER);
         getContentPane().add(edtPS11Edit);
-        edtPS11Edit.setBounds(440, 590, 60, 30);
+        edtPS11Edit.setBounds(440, 630, 60, 30);
 
         btnPS11Set.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
         btnPS11Set.setText("set");
@@ -1155,7 +1155,7 @@ public class SLG_PSST_MainFrame extends javax.swing.JFrame {
             }
         });
         getContentPane().add(btnPS11Set);
-        btnPS11Set.setBounds(510, 590, 60, 30);
+        btnPS11Set.setBounds(510, 630, 60, 30);
 
         btnResetCalibData.setText("Сбросить данные калибровки");
         btnResetCalibData.addActionListener(new java.awt.event.ActionListener() {
@@ -1164,7 +1164,7 @@ public class SLG_PSST_MainFrame extends javax.swing.JFrame {
             }
         });
         getContentPane().add(btnResetCalibData);
-        btnResetCalibData.setBounds(20, 630, 550, 30);
+        btnResetCalibData.setBounds(20, 670, 550, 30);
 
         btnSaveData.setText("Сохранить данные калибровки в память МК");
         btnSaveData.addActionListener(new java.awt.event.ActionListener() {
@@ -1173,9 +1173,9 @@ public class SLG_PSST_MainFrame extends javax.swing.JFrame {
             }
         });
         getContentPane().add(btnSaveData);
-        btnSaveData.setBounds(20, 670, 550, 30);
+        btnSaveData.setBounds(20, 710, 550, 30);
 
-        btnPhShRecalcOff.setText("Выключить");
+        btnPhShRecalcOff.setText("Ручной");
         btnPhShRecalcOff.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnPhShRecalcOffActionPerformed(evt);
@@ -1183,6 +1183,41 @@ public class SLG_PSST_MainFrame extends javax.swing.JFrame {
         });
         getContentPane().add(btnPhShRecalcOff);
         btnPhShRecalcOff.setBounds(440, 130, 130, 30);
+
+        edtCurrentPhaseShiftDecValue.setEditable(false);
+        edtCurrentPhaseShiftDecValue.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        edtCurrentPhaseShiftDecValue.setEnabled(false);
+        getContentPane().add(edtCurrentPhaseShiftDecValue);
+        edtCurrentPhaseShiftDecValue.setBounds(370, 220, 60, 30);
+
+        edtCurrentPhaseShiftDecValueToSet.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        edtCurrentPhaseShiftDecValueToSet.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusLost(java.awt.event.FocusEvent evt) {
+                edtCurrentPhaseShiftDecValueToSetFocusLost(evt);
+            }
+        });
+        getContentPane().add(edtCurrentPhaseShiftDecValueToSet);
+        edtCurrentPhaseShiftDecValueToSet.setBounds(440, 220, 60, 30);
+
+        btnCurrentPhaseShiftSetHex.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
+        btnCurrentPhaseShiftSetHex.setText("set");
+        btnCurrentPhaseShiftSetHex.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnCurrentPhaseShiftSetHexActionPerformed(evt);
+            }
+        });
+        getContentPane().add(btnCurrentPhaseShiftSetHex);
+        btnCurrentPhaseShiftSetHex.setBounds(510, 190, 60, 30);
+
+        jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel1.setText("DEC");
+        getContentPane().add(jLabel1);
+        jLabel1.setBounds(320, 220, 40, 30);
+
+        jLabel2.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel2.setText("HEX");
+        getContentPane().add(jLabel2);
+        jLabel2.setBounds(320, 190, 40, 30);
 
         pack();
         setLocationRelativeTo(null);
@@ -1264,11 +1299,6 @@ public class SLG_PSST_MainFrame extends javax.swing.JFrame {
         SendComandSetParam( ( byte ) SLG_ConstantsParams.SLG_PARAM_PH_SH_USAGE, ( byte) 0x00, ( byte) 0);
         theApp.m_bParamsChanged = true;
     }//GEN-LAST:event_btnPhShRecalcCalibActionPerformed
-
-    private void btnPhShRecalcManualActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPhShRecalcManualActionPerformed
-        SendComandSetParam( ( byte ) SLG_ConstantsParams.SLG_PARAM_PH_SH_USAGE, ( byte) 0x01, ( byte) 0);
-        theApp.m_bParamsChanged = true;
-    }//GEN-LAST:event_btnPhShRecalcManualActionPerformed
 
     private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
         
@@ -1891,9 +1921,9 @@ public class SLG_PSST_MainFrame extends javax.swing.JFrame {
         SendComandRequestParam( ( byte) SLG_ConstantsParams.SLG_PARAM_PH_SH_CURRENT_VAL, ( byte) 0);
     }//GEN-LAST:event_btnCurrentPhaseShiftGetActionPerformed
 
-    private void btnCurrentPhaseShiftSetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCurrentPhaseShiftSetActionPerformed
+    private void btnCurrentPhaseShiftSetDecActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCurrentPhaseShiftSetDecActionPerformed
         try {
-            String strValue = edtCurrentPhaseShiftValueToSet.getText();
+            String strValue = edtCurrentPhaseShiftDecValueToSet.getText();
             Integer IntValue = Integer.parseInt( strValue);
             if( IntValue >= 0 && IntValue <= 254) {
                 byte btValue = IntValue.byteValue();
@@ -1907,12 +1937,56 @@ public class SLG_PSST_MainFrame extends javax.swing.JFrame {
         catch( NumberFormatException e) {
             logger.error( "При обработке команды \"отправить ТекущийФазСдвиг\" возникла исключительная ситуация!", e);
         }
-    }//GEN-LAST:event_btnCurrentPhaseShiftSetActionPerformed
+    }//GEN-LAST:event_btnCurrentPhaseShiftSetDecActionPerformed
 
     private void btnPhShRecalcOffActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPhShRecalcOffActionPerformed
         SendComandSetParam( ( byte ) SLG_ConstantsParams.SLG_PARAM_PH_SH_USAGE, ( byte) 0xFF, ( byte) 0);
         theApp.m_bParamsChanged = true;
     }//GEN-LAST:event_btnPhShRecalcOffActionPerformed
+
+    private void btnCurrentPhaseShiftSetHexActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCurrentPhaseShiftSetHexActionPerformed
+        try {
+            String strValue = edtCurrentPhaseShiftHexValueToSet.getText();
+            Integer IntValue = Integer.parseInt(strValue, 16);
+            if( IntValue >= 0 && IntValue <= 254) {
+                byte btValue = IntValue.byteValue();
+                SendComandSetParam( ( byte ) SLG_ConstantsParams.SLG_PARAM_PH_SH_CURRENT_VAL, btValue, ( byte) 0);
+                theApp.m_bParamsChanged = true;
+            }
+            else {
+                SLG_PSST_App.MessageBoxInfo( "Значение фазового сдвига должно быть в диапазоне [0;254]", "SLG_PSST");
+            }
+        }
+        catch( NumberFormatException e) {
+            logger.error( "При обработке команды \"отправить ТекущийФазСдвиг\" возникла исключительная ситуация!", e);
+        }
+    }//GEN-LAST:event_btnCurrentPhaseShiftSetHexActionPerformed
+
+    private void edtCurrentPhaseShiftHexValueToSetFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_edtCurrentPhaseShiftHexValueToSetFocusLost
+        try {
+            String strValue = edtCurrentPhaseShiftHexValueToSet.getText();
+            Integer IntValue = Integer.parseInt(strValue, 16);
+            if( IntValue >= 0 && IntValue <= 254) {
+                edtCurrentPhaseShiftDecValueToSet.setText( String.format( "%d", IntValue));
+            }            
+        }
+        catch( NumberFormatException e) {
+            logger.error( "При потере фокуса \"ТекущийФазСдвиг HEX\" возникла исключительная ситуация!", e);
+        }
+    }//GEN-LAST:event_edtCurrentPhaseShiftHexValueToSetFocusLost
+
+    private void edtCurrentPhaseShiftDecValueToSetFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_edtCurrentPhaseShiftDecValueToSetFocusLost
+        try {
+            String strValue = edtCurrentPhaseShiftDecValueToSet.getText();
+            Integer IntValue = Integer.parseInt(strValue, 10);
+            if( IntValue >= 0 && IntValue <= 254) {
+                edtCurrentPhaseShiftHexValueToSet.setText( String.format( "%02X", IntValue));
+            }            
+        }
+        catch( NumberFormatException e) {
+            logger.error( "При потере фокуса \"ТекущийФазСдвиг DEC\" возникла исключительная ситуация!", e);
+        }
+    }//GEN-LAST:event_edtCurrentPhaseShiftDecValueToSetFocusLost
 
 
     private class PortReader implements SerialPortEventListener {
@@ -1944,7 +2018,8 @@ public class SLG_PSST_MainFrame extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     public javax.swing.JButton btnConnect;
     public javax.swing.JButton btnCurrentPhaseShiftGet;
-    public javax.swing.JButton btnCurrentPhaseShiftSet;
+    public javax.swing.JButton btnCurrentPhaseShiftSetDec;
+    public javax.swing.JButton btnCurrentPhaseShiftSetHex;
     public javax.swing.JButton btnDisconnect;
     public javax.swing.JButton btnPS10Get;
     public javax.swing.JButton btnPS10Set;
@@ -1969,7 +2044,6 @@ public class SLG_PSST_MainFrame extends javax.swing.JFrame {
     public javax.swing.JButton btnPS9Get;
     public javax.swing.JButton btnPS9Set;
     private javax.swing.JButton btnPhShRecalcCalib;
-    private javax.swing.JButton btnPhShRecalcManual;
     private javax.swing.JButton btnPhShRecalcOff;
     private javax.swing.JButton btnResetCalibData;
     private javax.swing.JButton btnSaveData;
@@ -1996,8 +2070,10 @@ public class SLG_PSST_MainFrame extends javax.swing.JFrame {
     public javax.swing.JButton btnT9Get;
     public javax.swing.JButton btnT9Set;
     private javax.swing.JTextField edtComPortValue;
-    private javax.swing.JTextField edtCurrentPhaseShiftValue;
-    private javax.swing.JTextField edtCurrentPhaseShiftValueToSet;
+    private javax.swing.JTextField edtCurrentPhaseShiftDecValue;
+    private javax.swing.JTextField edtCurrentPhaseShiftDecValueToSet;
+    private javax.swing.JTextField edtCurrentPhaseShiftHexValue;
+    private javax.swing.JTextField edtCurrentPhaseShiftHexValueToSet;
     private javax.swing.JTextField edtPS10Edit;
     private javax.swing.JTextField edtPS10Show;
     private javax.swing.JTextField edtPS11Edit;
@@ -2042,6 +2118,8 @@ public class SLG_PSST_MainFrame extends javax.swing.JFrame {
     private javax.swing.JTextField edtT8Show;
     private javax.swing.JTextField edtT9Edit;
     private javax.swing.JTextField edtT9Show;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel lblConnectionStateTitle;
     private javax.swing.JLabel lblConnectionStateValue;
     private javax.swing.JLabel lblCurrentPhaseShiftTitle;
